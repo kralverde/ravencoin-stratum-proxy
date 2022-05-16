@@ -85,7 +85,7 @@ class StratumSession(RPCSession):
                 handler = lambda _: ['00000000', 4]
             elif request.method == 'mining.authorize':
                 def authorize_handler(*args):
-                    address = request.args[0]
+                    address = args[0]
                     try:
                         if base58.b58decode_check(address)[0] != 111:
                             raise RPCError(1, f'{address} is not a p2pkh address')
@@ -99,7 +99,7 @@ class StratumSession(RPCSession):
                 print(worker, job_id, nonce_hex, header_hex, mixhash_hex)
             else:
                 handler = None
-        return await handler_invocation(handler, request)()
+        return handler_invocation(handler, request)()
             
 async def execute():
 
