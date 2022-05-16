@@ -136,7 +136,7 @@ async def execute():
                         height = json_resp['result']['height']
                     should_notify = tx.update_transactions(json_resp['result']['transactions'], json_resp['result']['coinbasevalue'], bytes.fromhex(json_resp['result']['default_witness_commitment']))
                     if should_notify and tx.transport:
-                        rev_prev_hash = bytes(reversed(bytes.fromhex(json_resp['result']['previousblockhash'])))
+                        rev_prev_hash = bytes(reversed(bytes.fromhex(json_resp['result']['previousblockhash']))).hex()
                         await tx.transport.send_notification('mining.notify', ('0', rev_prev_hash, tx.merkle.hex(), json_resp['result']['target'], clear_work, height, json_resp['result']['bits']))
             await asyncio.sleep(0.1)
 
