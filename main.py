@@ -112,7 +112,7 @@ async def execute():
 
     tx = TransactionState()
 
-    session_generator = partial(StratumSession, tx, node_port)
+    session_generator = partial(StratumSession, tx)
 
     # This keeps a state of current mempool & generates upcoming txs
     async def query_loop():
