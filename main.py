@@ -26,7 +26,7 @@ class TransactionState:
     coinbase = None
     transport = None
     transactions = []
-    update_coinbase_every = 100
+    update_coinbase_every = 10 * 60 * 10
     update_counter = update_coinbase_every
     my_address = None
     merkle = None
@@ -50,7 +50,7 @@ class TransactionState:
             self.update_counter = 0
             changed_mine = True
             self.build_coinbase_transaction(self.my_address, my_sats, witness_commitment)
-        if self.my_address and (changed_mine or len(self.transactions) != len(incoming_transactions)):
+        if self.my_address and (changed_mine or len(self.transactions) != (len(incoming_transactions) + 1)):
             # recalculate everything
             new_transactions = [self.coinbase]
             transaction_ids = [bytes(reversed(dsha256(self.coinbase)))]
@@ -138,7 +138,6 @@ async def execute():
                     if should_notify and tx.transport:
                         rev_prev_hash = bytes(reversed(bytes.fromhex(json_resp['result']['previousblockhash'])))
                         tx.transport.send_notification('mining.notify', ('0', rev_prev_hash, tx.merkle.hex(), json_resp['result']['target'], clear_work, height, json_resp['result']['bits']))
-                        print('Notifying')
             await asyncio.sleep(0.1)
 
     async with TaskGroup() as group:
