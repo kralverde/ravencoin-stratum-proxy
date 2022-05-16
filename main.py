@@ -43,18 +43,18 @@ class TransactionState:
                             bytes(8) + bytes([len(witness_commitment)]) + witness_commitment + \
                         b'\x01\x20' + bytes(32) + bytes(4)
 
-    def update_transactions(self, new_transactions, my_sats, witness_commitment):
+    def update_transactions(self, incoming_transactions, my_sats, witness_commitment):
         self.update_counter += 1
         changed_mine = False
         if self.my_address and self.update_counter >= self.update_coinbase_every:
             self.update_counter = 0
             changed_mine = True
             self.build_coinbase_transaction(self.my_address, my_sats, witness_commitment)
-        if self.my_address and (changed_mine or len(self.transactions) != len(new_transactions)):
+        if self.my_address and (changed_mine or len(self.transactions) != len(incoming_transactions)):
             # recalculate everything
             new_transactions = [self.coinbase]
             transaction_ids = [bytes(reversed(dsha256(self.coinbase)))]
-            for tx_data in new_transactions:
+            for tx_data in incoming_transactions:
                 raw_tx_hex = tx_data['data']
                 tx_hash = tx_data['txid']
                 new_transactions.append(bytes.fromhex(raw_tx_hex))
