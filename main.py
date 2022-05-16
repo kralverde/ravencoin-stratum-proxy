@@ -90,7 +90,7 @@ class StratumSession(RPCSession):
                         raise RPCError(1, f'{address} is not a p2pkh address')
                 except ValueError:
                     raise RPCError(1, f'{address} is not a valid address')
-                handler = lambda: True
+                handler = lambda: ()
                 self.tx.my_address = address
             elif request.method == 'mining.submit':
                 worker, job_id, nonce_hex, header_hex, mixhash_hex = request.args
