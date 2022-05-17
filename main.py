@@ -93,7 +93,7 @@ class TransactionState:
                             bytes(8) + op_push(len(witness_commitment)) + witness_commitment + \
                         bytes(4)
 
-    def update_transactions(self, version:int, height:int, bits:bytes, ts:int, prev_hash:bytes, incoming_transactions, my_sats, witness_commitment):
+    def update_transactions(self, version:int, height:int, bits:bytes, ts:int, prev_hash:bytes, incoming_transactions, my_sats, witness_commitment, flags):
         
         # Lock in the funny numbers
         if str(ts)[-3] == '4':
@@ -113,7 +113,7 @@ class TransactionState:
         if self.my_address and self.update_counter >= self.update_coinbase_every:
             self.update_counter = 0
             changed_mine = True
-            self.build_coinbase_transaction(height, self.my_address, my_sats, witness_commitment)
+            self.build_coinbase_transaction(height, flags, self.my_address, my_sats, witness_commitment)
         if self.my_address and (changed_mine or len(self.transactions) != (len(incoming_transactions) + 1)):
             # recalculate everything
             new_transactions = [self.coinbase]
@@ -266,7 +266,8 @@ async def execute():
                         bytes.fromhex(json_resp['result']['previousblockhash']),
                         json_resp['result']['transactions'], 
                         json_resp['result']['coinbasevalue'], 
-                        bytes.fromhex(json_resp['result']['default_witness_commitment']))
+                        bytes.fromhex(json_resp['result']['default_witness_commitment']),
+                        json_resp['result']['coinbaseaux']['flags'])
                     if should_notify and tx.transport:
                         await tx.transport.send_notification('mining.set_target', (json_resp['result']['target'],))
                         await tx.transport.send_notification('mining.notify', ('0', tx.header_hash.hex(), tx.seed_hash.hex(), json_resp['result']['target'], clear_work, height, json_resp['result']['bits']))
