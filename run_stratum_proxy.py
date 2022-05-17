@@ -202,7 +202,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                         }
                         for writer in clients_to_notify:
                             writer.write(json.dumps(json_obj_set_target).encode('utf8') + b'\n')
-                            asyncio.create_task(writer.drain())
+                            await writer.drain()
 
                         json_obj_new_job = {
                             'id': None,
@@ -219,7 +219,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                         }
                         for writer in clients_to_notify:
                             writer.write(json.dumps(json_obj_new_job).encode('utf8') + b'\n')
-                            asyncio.create_task(writer.drain())
+                            await writer.drain()
                     
                     elif len(state.general_txs) != len(txs_list):
                         # Create merkle & update txs
@@ -258,7 +258,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                         }
                         for writer in clients_to_notify:
                             writer.write(json.dumps(json_obj_new_job).encode('utf8') + b'\n')
-                            asyncio.create_task(writer.drain())
+                            await writer.drain()
                     
                 except Exception as e:
                     import traceback
@@ -337,7 +337,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                 'params': [state.target],
             }
             writer.write(json.dumps(json_obj_set_target).encode('utf8') + b'\n')
-            asyncio.create_task(writer.drain())
+            await writer.drain()
 
             if state.header_hash:
                 json_obj_new_job = {
@@ -354,7 +354,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                     ]
                 }
                 writer.write(json.dumps(json_obj_new_job).encode('utf8') + b'\n')
-                asyncio.create_task(writer.drain())
+                await writer.drain()
 
             clients_to_notify.add(writer)
             while True:
