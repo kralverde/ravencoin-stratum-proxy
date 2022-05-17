@@ -353,8 +353,8 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                         state.bits
                     ]
                 }
-            writer.write(json.dumps(json_obj_new_job).encode('utf8') + b'\n')
-            asyncio.create_task(writer.drain())
+                writer.write(json.dumps(json_obj_new_job).encode('utf8') + b'\n')
+                asyncio.create_task(writer.drain())
 
             clients_to_notify.add(writer)
             while True:
