@@ -183,7 +183,7 @@ class StratumSession(RPCSession):
                 handler = authorize_handler
             elif request.method == 'mining.submit':
                 async def handle_submit(*args):
-                    if self.tx.wait_for_new_block:
+                    if self.tx.wait_for_new_block or not self.tx.transactions:
                         return
                     worker, job_id, nonce_hex, header_hex, mixhash_hex = args
                     temp_block_a, temp_block_b = self.tx.partial_block()
@@ -201,7 +201,8 @@ class StratumSession(RPCSession):
                         async with session.post(f'http://{self.node_username}:{self.node_password}@localhost:{self.node_port}', data=json.dumps(data)) as resp:
                             json_resp = await resp.json()
                             print(json_resp)
-
+                            if json_resp.get('error', None):
+                                raise RPCError(1, json_resp['error'])
                             if json_resp.get('result', None):
                                 raise RPCError(1, json_resp['result'])
                     self.tx.wait_for_new_block = True
