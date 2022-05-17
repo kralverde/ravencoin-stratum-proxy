@@ -422,7 +422,7 @@ if __name__ == '__main__':
     node_password = str(sys.argv[4])
     node_port = int(sys.argv[5])
     testnet = False
-    if len(sys.argv > 6):
+    if len(sys.argv) > 6:
         testnet = bool(sys.argv[6])
 
     asyncio.run(execute(42069, 'localhost', 'user', 'pass', 18766, testnet))
