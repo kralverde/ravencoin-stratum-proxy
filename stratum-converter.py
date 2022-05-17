@@ -87,10 +87,10 @@ class TemplateState:
 
 class StratumSession(RPCSession):
 
-    def __init__(self, state: TransactionState, submit: Callable[[str], Coroutine], testnet: bool, transport):
+    def __init__(self, state: TemplateState, submit: Callable[[str], Coroutine], testnet: bool, transport):
         connection = JSONRPCConnection(JSONRPCAutoDetect)
         super().__init__(transport, connection=connection)
-        self._state: TransactionState = state
+        self._state = state
         self._submit = submit
         self._testnet = testnet
         self.handlers = {
