@@ -95,9 +95,9 @@ class TransactionState:
                             bytes(8) + op_push(len(witness_commitment)) + witness_commitment + \
                         bytes(4)
 
-    def update_transactions(self, version:int, height:int, bits:bytes, ts:int, prev_hash:bytes, incoming_transactions, my_sats, witness_commitment, flags):
+    def update_transactions(self, new_height: bool, version:int, height:int, bits:bytes, ts:int, prev_hash:bytes, incoming_transactions, my_sats, witness_commitment, flags):
         if self.wait_for_new_block:
-            return
+            return True
         # Lock in the funny numbers
         if str(ts)[-3] == '4':
             ts = int(str(ts)[:-2]+'20')
@@ -113,7 +113,7 @@ class TransactionState:
 
         self.update_counter += 1
         changed_mine = False
-        if self.my_address and self.update_counter >= self.update_coinbase_every:
+        if self.my_address and (new_height or self.update_counter >= self.update_coinbase_every):
             self.update_counter = 0
             changed_mine = True
             self.build_coinbase_transaction(height, flags, self.my_address, my_sats, witness_commitment)
@@ -270,6 +270,7 @@ async def execute():
                         tx.clear_for_new_height()
                         height = json_resp['result']['height']
                     should_notify = tx.update_transactions(
+                        clear_work,
                         json_resp['result']['version'], 
                         json_resp['result']['height'], 
                         bytes.fromhex(json_resp['result']['bits']), 
