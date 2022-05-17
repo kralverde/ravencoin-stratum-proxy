@@ -5,6 +5,7 @@ import base58
 import json
 import sha3
 import time
+import sys
 
 from typing import List, Set, Optional
 
@@ -411,4 +412,17 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
         await asyncio.sleep(0.1)
 
 if __name__ == '__main__':
-    asyncio.run(execute(42069, 'localhost', 'user', 'pass', 18766, True))
+    if len(sys.argv) < 6:
+        print('arguments must be: proxy_port, node_ip, node_username, node_password, node_port, (testnet - optional)')
+        exit(0)
+
+    proxy_port = int(sys.argv[1])
+    node_ip = str(sys.argv[2])
+    node_username = str(sys.argv[3])
+    node_password = str(sys.argv[4])
+    node_port = int(sys.argv[5])
+    testnet = False
+    if len(sys.argv > 6):
+        testnet = bool(sys.argv[6])
+
+    asyncio.run(execute(42069, 'localhost', 'user', 'pass', 18766, testnet))
