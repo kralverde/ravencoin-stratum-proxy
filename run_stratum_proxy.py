@@ -339,22 +339,23 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
             writer.write(json.dumps(json_obj_set_target).encode('utf8') + b'\n')
             await writer.drain()
 
-            if state.header_hash:
-                json_obj_new_job = {
-                    'id': None,
-                    'method:':'mining.notify',
-                    'params': [
-                        'the only job',
-                        state.header_hash,
-                        state.seed_hash.hex(),
-                        state.target,
-                        True,
-                        state.height,
-                        state.bits
-                    ]
-                }
-                writer.write(json.dumps(json_obj_new_job).encode('utf8') + b'\n')
-                await writer.drain()
+            if not state.header_hash:
+                await regenerate_parameters()
+            json_obj_new_job = {
+                'id': None,
+                'method:':'mining.notify',
+                'params': [
+                    'the only job',
+                    state.header_hash,
+                    state.seed_hash.hex(),
+                    state.target,
+                    True,
+                    state.height,
+                    state.bits
+                ]
+            }
+            writer.write(json.dumps(json_obj_new_job).encode('utf8') + b'\n')
+            await writer.drain()
 
             clients_to_notify.add(writer)
             while True:
