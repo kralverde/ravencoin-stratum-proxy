@@ -7,7 +7,7 @@ import base58
 import sha3
 
 from aiohttp import ClientSession
-from aiorpcx import RPCSession, JSONRPCConnection, JSONRPCAutoDetect, Request, serve_rs, RPCError
+from aiorpcx import RPCSession, JSONRPCConnection, JSONRPCAutoDetect, Request, serve_rs, handler_invocation, RPCError
 from functools import partial
 from hashlib import sha256
 from typing import Callable, Coroutine, Set, List, Optional
@@ -95,6 +95,18 @@ class StratumSession(RPCSession):
         self._state: TransactionState = state
         self._submit = submit
         self._testnet = testnet
+        self.handlers = {
+            'mining.subscribe': self.handle_subscribe,
+            'mining.authorize': self.handle_authorize,
+            'mining.submit': self.handle_submit
+        }
+
+    async def handle_request(self, request):
+        if isinstance(request, Request):
+            handler = self.handlers.get(request.method, None)
+        else:
+            handler = None
+        await handler_invocation(handler, request)()
 
     async def connection_lost(self):
         self._state.new_sessions.discard(self)
