@@ -345,7 +345,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                 'id': None,
                 'method:':'mining.notify',
                 'params': [
-                    'the only job',
+                    '0',
                     state.header_hash,
                     state.seed_hash.hex(),
                     state.target,
