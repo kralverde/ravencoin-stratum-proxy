@@ -265,6 +265,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                         await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 
                 if bits_hex != state.bits or target_hex != state.target:
+                    print('updating target')
                     state.bits = bits_hex
                     state.target = target_hex
                     for session in state.all_sessions:
