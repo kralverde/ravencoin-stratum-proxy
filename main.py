@@ -202,8 +202,10 @@ class StratumSession(RPCSession):
                             json_resp = await resp.json()
                             print(json_resp)
                             if json_resp.get('error', None):
+                                self.tx.clear_for_new_height()
                                 raise RPCError(1, json_resp['error'])
                             if json_resp.get('result', None):
+                                self.tx.clear_for_new_height()
                                 raise RPCError(1, json_resp['result'])
                     self.tx.wait_for_new_block = True
                     return True
@@ -264,7 +266,7 @@ async def execute():
             async with ClientSession() as session:
                 async with session.post(f'http://{node_username}:{node_password}@localhost:{node_port}', data=json.dumps(data)) as resp:
                     json_resp = await resp.json()
-                    clear_work = False
+                    clear_work = not bool(tx.transactions)
                     if height != json_resp['result']['height']:
                         clear_work = True
                         tx.clear_for_new_height()
