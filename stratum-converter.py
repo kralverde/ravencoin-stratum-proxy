@@ -164,10 +164,13 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                 target_hex: str = json_obj['result']['target']
 
                 ts = int(time.time())
+                new_block = False
 
                 if state.height == -1 or state.height != height_int:
                     # New block, update everything
                     print('New block, update state')
+                    new_block = True
+                    
                     state.target = target_hex
                     state.bits = bits_hex
                     state.version = version_int
@@ -234,7 +237,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     state.coinbase_txid = dsha256(coinbase_no_wit)
 
                 # The following occurs during both new blocks & new txs
-                if state.height == -1 or state.height != height_int or len(state.externalTxs) != len(txs_list):
+                if new_block or len(state.externalTxs) != len(txs_list):
                                             # Create merkle & update txs
                     print('Updating transactions')
                     txids = [state.coinbase_txid]
