@@ -271,7 +271,8 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
         # https://github.com/aeternity/protocol/blob/master/STRATUM.md
         try:
             subscribed = False
-            while state.my_address or not subscribed:
+            my_address = None
+            while not my_address or not subscribed:
                 exception = None
                 exception_obj = None
                 result = await reader.readuntil(b'\n')
@@ -295,6 +296,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                                         exception = 'Address is for wrong network'
                                         exception_obj = address
                                     else:
+                                        my_address = address
                                         if not state.address:
                                             state.address = address
 
