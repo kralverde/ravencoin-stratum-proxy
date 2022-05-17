@@ -305,6 +305,7 @@ if __name__ == '__main__':
     state = TemplateState()
 
     async def submit(block_hex: str):
+        print(block_hex)
         data = {
             'jsonrpc':'2.0',
             'id':'0',
