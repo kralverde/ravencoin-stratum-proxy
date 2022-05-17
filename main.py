@@ -46,6 +46,8 @@ def merkle_from_txids(txids: List[bytes]):
     # https://github.com/maaku/python-bitcoin/blob/master/bitcoin/merkle.py
     if not txids:
         return dsha256(b'')
+    if len(txids) == 1:
+        return txids[0]
     while len(txids) > 1:
         txids.append(txids[-1])
         txids = list(dsha256(l+r) for l,r in zip(*(iter(txids),)*2))
@@ -115,7 +117,7 @@ class TransactionState:
             self.partial_header = height.to_bytes(4, 'big') + \
                                     bits + \
                                     self.last_ts.to_bytes(4, 'big') + \
-                                    self.merkle + \
+                                    self.merkle[::-1] + \
                                     prev_hash + \
                                     version.to_bytes(4, 'big')
             
@@ -268,4 +270,7 @@ async def execute():
                 raise exc
 
 if __name__ == '__main__':
+
+    print(merkle_from_txids(['']))
+    exit()
     asyncio.run(execute())
