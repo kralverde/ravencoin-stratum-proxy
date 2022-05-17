@@ -170,7 +170,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     # New block, update everything
                     print('New block, update state')
                     new_block = True
-                    
+
                     state.target = target_hex
                     state.bits = bits_hex
                     state.version = version_int
@@ -259,11 +259,17 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
 
                     state.headerHash = dsha256(state.header)[::-1].hex()
 
-                    print(state)
+                    #print(state)
 
                     for session in state.all_sessions:
                         await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 
+                if bits_hex != state.bits or target_hex != state.target:
+                    state.bits = bits_hex
+                    state.target = target_hex
+                    for session in state.all_sessions:
+                        await session.send_notification('mining.set_target', (state.target,))
+                        await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
 
                 for session in state.new_sessions:
                     state.all_sessions.add(session)
