@@ -115,7 +115,7 @@ class TransactionState:
             self.partial_header = height.to_bytes(4, 'big') + \
                                     bits + \
                                     self.last_ts.to_bytes(4, 'big') + \
-                                    self.merkle[::-1] + \
+                                    self.merkle + \
                                     prev_hash + \
                                     version.to_bytes(4, 'big')
             
