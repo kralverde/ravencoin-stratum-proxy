@@ -168,12 +168,13 @@ class StratumSession(RPCSession):
                 async def handle_submit(*args):
                     worker, job_id, nonce_hex, header_hex, mixhash_hex = args
                     temp_block_a, temp_block_b = self.tx.partial_block()
-                    full_block = temp_block_a.hex() + nonce_hex + mixhash_hex + temp_block_b.hex()
+                    full_block = temp_block_a + bytes.fromhex(nonce_hex + mixhash_hex) + temp_block_b
+                    full_block = b'\x43\x52\x4f\x57' + len(full_block).to_bytes(4, 'little') + full_block
                     data = {
                         'jsonrpc':'2.0',
                         'id':'0',
                         'method':'submitblock',
-                        'params':[full_block]
+                        'params':[full_block.hex()]
                     }
                     async with ClientSession() as session:
                         async with session.post(f'http://{self.node_username}:{self.node_password}@localhost:{self.node_port}', data=json.dumps(data)) as resp:
@@ -251,6 +252,7 @@ async def execute():
                         json_resp['result']['coinbasevalue'], 
                         bytes.fromhex(json_resp['result']['default_witness_commitment']))
                     if should_notify and tx.transport:
+                        await tx.transport.send_notification('mining.set_target', (json_resp['result']['target'],))
                         await tx.transport.send_notification('mining.notify', ('0', tx.header_hash.hex(), tx.seed_hash.hex(), json_resp['result']['target'], clear_work, height, json_resp['result']['bits']))
             await asyncio.sleep(0.1)
 
