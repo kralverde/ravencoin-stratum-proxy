@@ -166,7 +166,7 @@ class StratumSession(RPCSession):
                 handler = authorize_handler
             elif request.method == 'mining.submit':
                 async def handle_submit(*args):
-                    worker, job_id, nonce_hex, header_hex, mixhash_hex = request.args
+                    worker, job_id, nonce_hex, header_hex, mixhash_hex = args
                     temp_block_a, temp_block_b = self.tx.partial_block()
                     full_block = temp_block_a.hex() + nonce_hex + mixhash_hex + temp_block_b.hex()
                     data = {
@@ -221,7 +221,7 @@ async def execute():
 
     tx = TransactionState()
 
-    session_generator = partial(StratumSession, tx)
+    session_generator = partial(StratumSession, node_username, node_password, node_port, tx)
 
     # This keeps a state of current mempool & generates upcoming txs
     async def query_loop():
