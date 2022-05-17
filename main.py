@@ -281,7 +281,7 @@ async def execute():
                         json_resp['result']['coinbaseaux']['flags'])
                     if should_notify and tx.transport:
                         await tx.transport.send_notification('mining.set_target', (json_resp['result']['target'],))
-                        await tx.transport.send_notification('mining.notify', ('0', tx.header_hash.hex(), tx.seed_hash.hex(), json_resp['result']['target'], True, height, json_resp['result']['bits']))
+                        await tx.transport.send_notification('mining.notify', ('0', tx.header_hash.hex(), tx.seed_hash.hex(), json_resp['result']['target'], clear_work, height, json_resp['result']['bits']))
                         if clear_work:
                             print('clearing work')
                             tx.wait_for_new_block = False
