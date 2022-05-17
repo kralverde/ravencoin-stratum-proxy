@@ -149,7 +149,6 @@ class TransactionState:
     def clear_for_new_height(self):
         # This will trigger updates for everything else
         self.transactions.clear()
-        self.wait_for_new_block = False
 
 class StratumSession(RPCSession):
     begun_loop: bool = False
@@ -280,10 +279,12 @@ async def execute():
                         json_resp['result']['coinbasevalue'], 
                         bytes.fromhex(json_resp['result']['default_witness_commitment']),
                         json_resp['result']['coinbaseaux']['flags'])
-                    print(json_resp['result']['target'])
                     if should_notify and tx.transport:
                         await tx.transport.send_notification('mining.set_target', (json_resp['result']['target'],))
                         await tx.transport.send_notification('mining.notify', ('0', tx.header_hash.hex(), tx.seed_hash.hex(), json_resp['result']['target'], clear_work, height, json_resp['result']['bits']))
+                        if clear_work:
+                            tx.wait_for_new_block = False
+                            
             await asyncio.sleep(0.1)
 
     async with TaskGroup() as group:
