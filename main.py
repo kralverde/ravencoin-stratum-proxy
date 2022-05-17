@@ -271,6 +271,6 @@ async def execute():
 
 if __name__ == '__main__':
 
-    print(merkle_from_txids(['']))
-    exit()
+    #print(merkle_from_txids(['']))
+    #exit()
     asyncio.run(execute())
