@@ -313,7 +313,7 @@ if __name__ == '__main__':
             await asyncio.sleep(0.1)
 
     async def execute():
-        async with TaskGroup(any) as group:
+        async with TaskGroup(wait=any) as group:
             await group.spawn(serve_rs(session_generator, 'localhost', proxy_port, reuse_address=True))
             await group.spawn(updateState())
 
