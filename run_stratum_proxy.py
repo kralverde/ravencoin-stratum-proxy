@@ -94,7 +94,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                         print(json_obj.get('error'))
                         raise Exception()
                     
-                    version_int: str = json_obj['result']['version']
+                    version_int: int = json_obj['result']['version']
                     height_int: int = json_obj['result']['height'] 
                     bits_hex: str = json_obj['result']['bits'] 
                     prev_hash_hex: str = json_obj['result']['previousblockhash']
@@ -189,7 +189,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                                 merkle.hex() + \
                                 ts.to_bytes(4, 'little').hex() + \
                                 bytes.fromhex(bits_hex)[::-1].hex() + \
-                                state.height.to_bytes(4, 'little')
+                                state.height.to_bytes(4, 'little').hex()
 
                         state.header_hash = dsha256(state.header)[::-1].hex()
 
@@ -239,7 +239,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                                 merkle.hex() + \
                                 ts.to_bytes(4, 'little').hex() + \
                                 bytes.fromhex(bits_hex)[::-1].hex() + \
-                                state.height.to_bytes(4, 'little')
+                                state.height.to_bytes(4, 'little').hex()
 
                         state.header_hash = dsha256(state.header)[::-1].hex()
 
