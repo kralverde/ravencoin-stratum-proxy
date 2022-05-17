@@ -70,8 +70,12 @@ class TransactionState:
     def partial_block(self) -> Tuple[bytes, bytes]:
         return self.partial_header[::-1], var_int(len(self.transactions)) + b''.join(self.transactions)
 
-    def build_coinbase_transaction(self, my_address: str, my_sats: int, witness_commitment: bytes):
-        arbitrary_data = 'with the help of github.com/kralverde/ravencoin-stratum-proxy and some magic '.encode('utf8') + urandom(0x10)
+    def build_coinbase_transaction(self, height:int, flags, my_address: str, my_sats: int, witness_commitment: bytes):
+        make_height = height.to_bytes(4, 'little')
+        while make_height[-1] == 0:
+            make_height = make_height[:-1]
+
+        arbitrary_data = bytes([len(make_height)]) + make_height + 'with a little help from http://github.com/kralverde/ravencoin-stratum-proxy and the magic words: '.encode('utf8') + urandom(0x10) + bytes.fromhex(flags)
         coinbase_txin = bytes(32) + b'\xff\xff\xff\xff' + var_int(len(arbitrary_data)) + arbitrary_data + b'\xff\xff\xff\xff'
         vout1 = b'\x76\xa9\x14' + base58.b58decode(my_address)[1:] + b'\x88\xac'
         self.coinbase = int(1).to_bytes(4, 'little') + \
@@ -109,7 +113,7 @@ class TransactionState:
         if self.my_address and self.update_counter >= self.update_coinbase_every:
             self.update_counter = 0
             changed_mine = True
-            self.build_coinbase_transaction(self.my_address, my_sats, witness_commitment)
+            self.build_coinbase_transaction(height, self.my_address, my_sats, witness_commitment)
         if self.my_address and (changed_mine or len(self.transactions) != (len(incoming_transactions) + 1)):
             # recalculate everything
             new_transactions = [self.coinbase]
