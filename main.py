@@ -153,7 +153,7 @@ class TransactionState:
 class StratumSession(RPCSession):
     begun_loop: bool = False
 
-    def __init__(self, node_username, node_password, node_port, tx: TransactionState, transport):
+    def __init__(self, node_ip, node_username, node_password, node_port, testnet, tx: TransactionState, transport):
         connection = JSONRPCConnection(JSONRPCAutoDetect)
         super().__init__(transport, connection=connection)
         tx.transport = self
@@ -161,6 +161,8 @@ class StratumSession(RPCSession):
         self.node_username = node_username
         self.node_password = node_password
         self.node_port = node_port
+        self.node_ip = node_ip
+        self.testnet = testnet
 
     async def handle_request(self, request):
         if not isinstance(request, Request):
@@ -174,7 +176,7 @@ class StratumSession(RPCSession):
                 async def authorize_handler(*args):
                     address = args[0].split('.')[0]
                     try:
-                        if base58.b58decode_check(address)[0] != 111:
+                        if base58.b58decode_check(address)[0] != (111 if self.testnet else 60):
                             raise RPCError(1, f'{address} is not a p2pkh address')
                     except ValueError:
                         raise RPCError(1, f'{address} is not a valid address')
@@ -198,7 +200,7 @@ class StratumSession(RPCSession):
                     }
                     self.tx.clear_for_new_height()
                     async with ClientSession() as session:
-                        async with session.post(f'http://{self.node_username}:{self.node_password}@localhost:{self.node_port}', data=json.dumps(data)) as resp:
+                        async with session.post(f'http://{self.node_username}:{self.node_password}@{self.node_ip}:{self.node_port}', data=json.dumps(data)) as resp:
                             json_resp = await resp.json()
                             print(json_resp)
                             if json_resp.get('error', None):
@@ -240,18 +242,23 @@ async def execute():
 
     exit()
     '''
-    if len(sys.argv) < 5:
-        print('arguments must be: proxy_port, node_username, node_password, node_port')
+    if len(sys.argv) < 6:
+        print('arguments must be: proxy_port, node_ip, node_username, node_password, node_port, (testnet - optional)')
         exit(0)
 
     proxy_port = int(sys.argv[1])
-    node_username = str(sys.argv[2])
-    node_password = str(sys.argv[3])
-    node_port = int(sys.argv[4])
+    node_ip = str(sys.argv[2])
+    node_username = str(sys.argv[3])
+    node_password = str(sys.argv[4])
+    node_port = int(sys.argv[5])
+    testnet = False
+    if len(sys.argv) > 6:
+        testnet = bool(sys.argv[6])
+
 
     tx = TransactionState()
 
-    session_generator = partial(StratumSession, node_username, node_password, node_port, tx)
+    session_generator = partial(StratumSession, node_ip, node_username, node_password, node_port, testnet, tx)
 
     # This keeps a state of current mempool & generates upcoming txs
     async def query_loop():
@@ -264,7 +271,7 @@ async def execute():
         height = -1
         while True:
             async with ClientSession() as session:
-                async with session.post(f'http://{node_username}:{node_password}@localhost:{node_port}', data=json.dumps(data)) as resp:
+                async with session.post(f'http://{node_username}:{node_password}@{node_ip}:{node_port}', data=json.dumps(data)) as resp:
                     json_resp = await resp.json()
                     clear_work = not bool(tx.transactions)
                     if height != json_resp['result']['height']:
