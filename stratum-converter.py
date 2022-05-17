@@ -117,7 +117,7 @@ class StratumSession(RPCSession):
         return ['00'*4, 4]
     
     async def handle_authorize(self, username: str, password: str):
-        address = username.split('.')
+        address = username.split('.')[0]
         if base58.b58decode_check(address)[0] != (111 if self._testnet else 60):
             raise RPCError(1, f'Invalid address {address}')
         if not self._state.address:
