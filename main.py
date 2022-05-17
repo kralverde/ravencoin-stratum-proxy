@@ -66,6 +66,7 @@ class TransactionState:
     seed_hash = None
     last_ts = None
     partial_header = None
+    wait_for_new_block = False
 
     def partial_block(self) -> Tuple[bytes, bytes]:
         return self.partial_header[::-1], var_int(len(self.transactions)) + b''.join(self.transactions)
@@ -95,7 +96,8 @@ class TransactionState:
                         bytes(4)
 
     def update_transactions(self, version:int, height:int, bits:bytes, ts:int, prev_hash:bytes, incoming_transactions, my_sats, witness_commitment, flags):
-        
+        if self.wait_for_new_block:
+            return
         # Lock in the funny numbers
         if str(ts)[-3] == '4':
             ts = int(str(ts)[:-2]+'20')
@@ -147,6 +149,7 @@ class TransactionState:
     def clear_for_new_height(self):
         # This will trigger updates for everything else
         self.transactions.clear()
+        self.wait_for_new_block = False
 
 class StratumSession(RPCSession):
     begun_loop: bool = False
@@ -195,7 +198,12 @@ class StratumSession(RPCSession):
                     self.tx.clear_for_new_height()
                     async with ClientSession() as session:
                         async with session.post(f'http://{self.node_username}:{self.node_password}@localhost:{self.node_port}', data=json.dumps(data)) as resp:
-                            print(await resp.text())
+                            json_resp = await resp.json()
+                            print(json_resp)
+
+                            if json_resp.get('result', None):
+                                raise RPCError(json_resp['result'])
+                    self.tx.wait_for_new_block = True
                     return True
                 handler = handle_submit
             else:
