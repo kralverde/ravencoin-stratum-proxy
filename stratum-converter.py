@@ -184,14 +184,16 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                                 k = sha3.keccak_256()
                                 k.update(seed_hash)
                                 seed_hash = k.digest()
+                            print(f'Initialized seedhash to {seed_hash.hex()}')
                             state.seedHash = seed_hash
                         elif state.height % KAWPOW_EPOCH_LENGTH == 0:
                             # Hashing is expensive, so want use the old val
                             k = sha3.keccak_256()
                             k.update(state.seedHash)
                             seed_hash = k.digest()
+                            print(f'updated seed hash to {seed_hash.hex()}')
                             state.seedHash = seed_hash
-                    else:
+                    elif state.height > height_int:
                         # Maybe a chain reorg?
                         
                         # If the difference between heights is greater than how far we are into the epoch
@@ -202,6 +204,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                                 k = sha3.keccak_256()
                                 k.update(seed_hash)
                                 seed_hash = k.digest()
+                            print(f'Reverted seedhash to {seed_hash}')
                             state.seedHash = seed_hash
 
                     # Done with seed hash #
@@ -264,14 +267,6 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     for session in state.all_sessions:
                         await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 
-                if bits_hex != state.bits or target_hex != state.target:
-                    print('updating target')
-                    state.bits = bits_hex
-                    state.target = target_hex
-                    for session in state.all_sessions:
-                        await session.send_notification('mining.set_target', (state.target,))
-                        await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
-
                 for session in state.new_sessions:
                     state.all_sessions.add(session)
                     await session.send_notification('mining.set_target', (state.target,))
