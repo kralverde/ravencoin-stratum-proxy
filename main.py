@@ -55,6 +55,7 @@ def merkle_from_txids(txids: List[bytes]):
 
 class TransactionState:
     coinbase = None
+    coinbase_no_wit = None
     transport = None
     transactions = []
     update_coinbase_every = 10 * 60 * 10
@@ -81,6 +82,13 @@ class TransactionState:
                             bytes(8) + op_push(len(witness_commitment)) + witness_commitment + \
                         b'\x01\x20' + bytes(32) + bytes(4)
 
+        self.coinbase_no_wit = int(1).to_bytes(4, 'little') + \
+                        b'\x01' + coinbase_txin + \
+                        b'\x02' + \
+                            my_sats.to_bytes(8, 'little') + op_push(len(vout1)) + vout1 + \
+                            bytes(8) + op_push(len(witness_commitment)) + witness_commitment + \
+                        bytes(4)
+
     def update_transactions(self, version:int, height:int, bits:bytes, ts:int, prev_hash:bytes, incoming_transactions, my_sats, witness_commitment):
         
         # Lock in the funny numbers
@@ -105,7 +113,7 @@ class TransactionState:
         if self.my_address and (changed_mine or len(self.transactions) != (len(incoming_transactions) + 1)):
             # recalculate everything
             new_transactions = [self.coinbase]
-            transaction_ids = [dsha256(self.coinbase)]
+            transaction_ids = [dsha256(self.coinbase_no_wit)]
             for tx_data in incoming_transactions:
                 raw_tx_hex = tx_data['data']
                 tx_hash = tx_data['txid']
@@ -179,6 +187,7 @@ class StratumSession(RPCSession):
                         'method':'submitblock',
                         'params':[full_block.hex()]
                     }
+                    self.tx.clear_for_new_height()
                     async with ClientSession() as session:
                         async with session.post(f'http://{self.node_username}:{self.node_password}@localhost:{self.node_port}', data=json.dumps(data)) as resp:
                             print(await resp.text())
