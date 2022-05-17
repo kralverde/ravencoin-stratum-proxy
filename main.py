@@ -75,9 +75,9 @@ class TransactionState:
         while make_height[-1] == 0:
             make_height = make_height[:-1]
 
-        arbitrary_data = bytes([len(make_height)]) + make_height + 'with a little help from http://github.com/kralverde/ravencoin-stratum-proxy and the magic words: '.encode('utf8') + urandom(0x10) + bytes.fromhex(flags)
+        arbitrary_data = bytes([len(make_height)]) + make_height + (bytes.fromhex(flags) if flags else b'\0') + 'with a little help from http://github.com/kralverde/ravencoin-stratum-proxy and the magic words: '.encode('utf8') + urandom(0x10)
         coinbase_txin = bytes(32) + b'\xff\xff\xff\xff' + var_int(len(arbitrary_data)) + arbitrary_data + b'\xff\xff\xff\xff'
-        vout1 = b'\x76\xa9\x14' + base58.b58decode(my_address)[1:] + b'\x88\xac'
+        vout1 = b'\x76\xa9\x14' + base58.b58decode_check(my_address)[1:] + b'\x88\xac'
         self.coinbase = int(1).to_bytes(4, 'little') + \
                         b'\x00\x01' + \
                         b'\x01' + coinbase_txin + \
