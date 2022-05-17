@@ -184,7 +184,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
 
                         # Done create merkle & update txs
 
-                        state.header = version_int.to_bytes(4, 'little') + \
+                        state.header = version_int.to_bytes(4, 'little').hex() + \
                                 bytes.fromhex(prev_hash_hex)[::-1].hex() + \
                                 merkle.hex() + \
                                 ts.to_bytes(4, 'little').hex() + \
@@ -234,7 +234,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
 
                         # Done create merkle & update txs
 
-                        state.header = version_int.to_bytes(4, 'little') + \
+                        state.header = version_int.to_bytes(4, 'little').hex() + \
                                 bytes.fromhex(prev_hash_hex)[::-1].hex() + \
                                 merkle.hex() + \
                                 ts.to_bytes(4, 'little').hex() + \
