@@ -83,7 +83,7 @@ class TemplateState:
 
 
     def build_block(self, nonce: str, mixHash: str) -> str:
-        return state.header.hex() + nonce + mixHash + var_int(len(self.externalTxs) + 1).hex() + self.coinbase_tx.hex() + ''.join(self.externalTxs)
+        return self.header.hex() + nonce + mixHash + var_int(len(self.externalTxs) + 1).hex() + self.coinbase_tx.hex() + ''.join(self.externalTxs)
 
 class StratumSession(RPCSession):
 
