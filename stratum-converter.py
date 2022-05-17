@@ -12,8 +12,6 @@ from functools import partial
 from hashlib import sha256
 from typing import Callable, Coroutine, Set, List, Optional
 
-from main import TransactionState
-
 
 KAWPOW_EPOCH_LENGTH = 7500
 
