@@ -7,7 +7,7 @@ import base58
 import sha3
 
 from aiohttp import ClientSession
-from aiorpcx import RPCSession, JSONRPCConnection, JSONRPCAutoDetect, Request, serve_rs, handler_invocation, RPCError
+from aiorpcx import RPCSession, JSONRPCConnection, JSONRPCAutoDetect, Request, serve_rs, handler_invocation, RPCError, TaskGroup
 from functools import partial
 from hashlib import sha256
 from typing import Callable, Coroutine, Set, List, Optional
@@ -307,11 +307,20 @@ if __name__ == '__main__':
 
     session_generator = partial(StratumSession, state, submit, testnet)
 
-    asyncio.create_task(serve_rs(session_generator, 'localhost', proxy_port, reuse_address=True))
-
     async def updateState():
         while True:
             await stateUpdater(state, node_ip, node_username, node_password, node_port)
             await asyncio.sleep(0.1)
 
-    asyncio.run(updateState())
+    async def execute():
+        async with TaskGroup(any) as group:
+            await group.spawn(serve_rs(session_generator, 'localhost', proxy_port, reuse_address=True))
+            await group.spawn(updateState())
+
+        for task in group.tasks:
+            if not task.cancelled():
+                exc = task.exception()
+                if exc:
+                    raise exc
+
+    asyncio.run(execute())
