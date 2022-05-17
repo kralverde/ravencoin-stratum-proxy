@@ -280,6 +280,7 @@ async def execute():
                         json_resp['result']['coinbasevalue'], 
                         bytes.fromhex(json_resp['result']['default_witness_commitment']),
                         json_resp['result']['coinbaseaux']['flags'])
+                    print(json_resp['result']['target'])
                     if should_notify and tx.transport:
                         await tx.transport.send_notification('mining.set_target', (json_resp['result']['target'],))
                         await tx.transport.send_notification('mining.notify', ('0', tx.header_hash.hex(), tx.seed_hash.hex(), json_resp['result']['target'], clear_work, height, json_resp['result']['bits']))
