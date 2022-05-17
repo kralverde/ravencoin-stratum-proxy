@@ -81,6 +81,8 @@ class TemplateState:
 
     awaiting_update = False
 
+    def __repr__(self):
+        return f'{self.height} {self.address} {self.bits} {self.target} {self.headerHash} {self.version} {self.prevHash} {self.externalTxs} {self.seedHash} {self.header} {self.coinbase_tx} {self.coinbase_txid} {self.new_sessions} {self.all_sessions}'
 
     def build_block(self, nonce: str, mixHash: str) -> str:
         return self.header.hex() + nonce + mixHash + var_int(len(self.externalTxs) + 1).hex() + self.coinbase_tx.hex() + ''.join(self.externalTxs)
@@ -165,7 +167,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
 
                 if state.height == -1 or state.height != height_int:
                     # New block, update everything
-
+                    print('New block, update state')
                     state.target = target_hex
                     state.bits = bits_hex
                     state.version = version_int
@@ -234,6 +236,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                 # The following occurs during both new blocks & new txs
                 if state.height == -1 or state.height != height_int or len(state.externalTxs) != len(txs_list):
                                             # Create merkle & update txs
+                    print('Updating transactions')
                     txids = [state.coinbase_txid]
                     incoming_txs = []
                     for tx_data in txs_list:
@@ -252,6 +255,8 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                             state.height.to_bytes(4, 'little')
 
                     state.headerHash = dsha256(state.header)[::-1].hex()
+
+                    print(state)
 
                     for session in state.all_sessions:
                         await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
