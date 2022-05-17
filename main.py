@@ -169,7 +169,7 @@ class StratumSession(RPCSession):
                     worker, job_id, nonce_hex, header_hex, mixhash_hex = args
                     temp_block_a, temp_block_b = self.tx.partial_block()
                     full_block = temp_block_a + bytes.fromhex(nonce_hex[2:] + mixhash_hex[2:]) + temp_block_b
-                    full_block = len(full_block).to_bytes(4, 'little') + full_block
+                    full_block = len(full_block).to_bytes(4, 'big') + full_block
                     print(full_block.hex())
                     data = {
                         'jsonrpc':'2.0',
