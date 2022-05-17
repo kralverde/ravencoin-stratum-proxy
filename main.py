@@ -65,7 +65,7 @@ class TransactionState:
     partial_header = None
 
     def partial_block(self) -> Tuple[bytes, bytes]:
-        return bytes(reversed(self.partial_header)), var_int(len(self.transactions)) + b''.join(self.transactions)
+        return self.partial_header[::-1], var_int(len(self.transactions)) + b''.join(self.transactions)
 
     def build_coinbase_transaction(self, my_address: str, my_sats: int, witness_commitment: bytes):
         arbitrary_data = 'converted with the help of https://github.com/kralverde/ravencoin-stratum-proxy and nonce: '.encode('utf8') + urandom(0x10)
@@ -76,8 +76,8 @@ class TransactionState:
                         b'\x01' + coinbase_txin + \
                         b'\x02' + \
                             my_sats.to_bytes(8, 'little') + op_push(len(vout1)) + vout1 + \
-                            bytes(8) + op_push(len(witness_commitment)) + witness_commitment + \
-                        b'\x01\x20' + bytes(32) + bytes(4)
+                            bytes(8) + witness_commitment + \
+                        b'\x01' + bytes(32) + bytes(4)
 
     def update_transactions(self, version:int, height:int, bits:bytes, ts:int, prev_hash:bytes, incoming_transactions, my_sats, witness_commitment):
         
@@ -103,23 +103,23 @@ class TransactionState:
         if self.my_address and (changed_mine or len(self.transactions) != (len(incoming_transactions) + 1)):
             # recalculate everything
             new_transactions = [self.coinbase]
-            transaction_ids = [bytes(reversed(dsha256(self.coinbase)))]
+            transaction_ids = [dsha256(self.coinbase)[::-1]]
             for tx_data in incoming_transactions:
                 raw_tx_hex = tx_data['data']
                 tx_hash = tx_data['txid']
                 new_transactions.append(bytes.fromhex(raw_tx_hex))
-                transaction_ids.append(bytes(reversed(bytes.fromhex(tx_hash))))
+                transaction_ids.append(bytes.fromhex(tx_hash)[::-1])
             self.transactions = new_transactions
             self.merkle = merkle_from_txids(transaction_ids)
             
             self.partial_header = height.to_bytes(4, 'big') + \
                                     bits + \
                                     self.last_ts.to_bytes(4, 'big') + \
-                                    bytes(reversed(self.merkle)) + \
+                                    self.merkle[::-1] + \
                                     prev_hash + \
                                     version.to_bytes(4, 'big')
             
-            self.header_hash = bytes(reversed(dsha256(bytes(reversed(self.partial_header)))))
+            self.header_hash = dsha256(self.partial_header[::-1])[::-1]
             self.seed_hash = bytes(32)
             for _ in range(height//KAWPOW_EPOCH_LENGTH):
                 k = sha3.keccak_256()
@@ -168,7 +168,7 @@ class StratumSession(RPCSession):
                 async def handle_submit(*args):
                     worker, job_id, nonce_hex, header_hex, mixhash_hex = args
                     temp_block_a, temp_block_b = self.tx.partial_block()
-                    full_block = temp_block_a + bytes(reversed(bytes.fromhex(nonce_hex[2:]))) + bytes(reversed(bytes.fromhex(mixhash_hex[2:]))) + temp_block_b
+                    full_block = temp_block_a + bytes.fromhex(nonce_hex[2:])[::-1] + bytes.fromhex(mixhash_hex[2:])[::-1] + temp_block_b
                     full_block = len(full_block).to_bytes(4, 'big') + full_block
                     print(full_block.hex())
                     data = {
