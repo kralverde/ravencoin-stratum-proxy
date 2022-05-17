@@ -58,7 +58,6 @@ def decode_block_hex(h: str):
         if b[0] == 0:
             assert b[1] == 1
             print(f'transaction {i}: flag is present')
-            tx_b += b[:4]
             b = b[2:]
             wit_flag = True
 
@@ -119,8 +118,10 @@ def decode_block_hex(h: str):
                     print(f'transaction {i} vin {j} witness data: {data.hex()} (len: {data_len})')
 
         lock_time = b[:4]
+        tx_b += b[:4]
         b = b[4:]
         print(f'transaction {i} locktime: {lock_time.hex()} ({int.from_bytes(lock_time, "little")})')
+        print(f'transaction {i} txid: {dsha256(tx_b).hex()}')
 
     print(f'left over: {b.hex()}')
 
