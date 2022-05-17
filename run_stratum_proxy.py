@@ -191,7 +191,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                                 bytes.fromhex(bits_hex)[::-1].hex() + \
                                 state.height.to_bytes(4, 'little').hex()
 
-                        state.header_hash = dsha256(state.header)[::-1].hex()
+                        state.header_hash = dsha256(bytes.fromhex(state.header))[::-1].hex()
 
                         # Notify all
                         #'mining.notify', ('0', tx.header_hash.hex(), tx.seed_hash.hex(), json_resp['result']['target'], clear_work, height, json_resp['result']['bits'])
@@ -241,7 +241,7 @@ async def execute(this_port: int, node_url: str, node_username: str, node_passwo
                                 bytes.fromhex(bits_hex)[::-1].hex() + \
                                 state.height.to_bytes(4, 'little').hex()
 
-                        state.header_hash = dsha256(state.header)[::-1].hex()
+                        state.header_hash = dsha256(bytes.fromhex(state.header))[::-1].hex()
 
                         json_obj_new_job = {
                             'id': None,
