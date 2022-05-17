@@ -76,7 +76,7 @@ class TransactionState:
                         b'\x01' + coinbase_txin + \
                         b'\x02' + \
                             my_sats.to_bytes(8, 'little') + op_push(len(vout1)) + vout1 + \
-                            bytes(8) + op_push(len(witness_commitment + 1)) + b'\x6A' + witness_commitment + \
+                            bytes(8) + op_push(len(witness_commitment) + 1) + b'\x6A' + witness_commitment + \
                         b'\x01' + bytes(32) + bytes(4)
 
     def update_transactions(self, version:int, height:int, bits:bytes, ts:int, prev_hash:bytes, incoming_transactions, my_sats, witness_commitment):
