@@ -427,4 +427,4 @@ if __name__ == '__main__':
     if len(sys.argv) > 6:
         testnet = bool(sys.argv[6])
 
-    asyncio.run(execute(42069, 'localhost', 'user', 'pass', 18766, testnet))
+    asyncio.run(execute(proxy_port, node_ip, node_username, node_password, node_port, testnet))
