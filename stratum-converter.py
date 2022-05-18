@@ -241,7 +241,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
 
                 # The following occurs during both new blocks & new txs
                 if new_block or len(state.externalTxs) != len(txs_list):
-                                            # Create merkle & update txs
+                    # Create merkle & update txs
                     print('Updating transactions')
                     txids = [state.coinbase_txid]
                     incoming_txs = []
@@ -265,10 +265,12 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     #print(state)
 
                     for session in state.all_sessions:
+                        print(f'Sending target {state.target}')
                         await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 
                 for session in state.new_sessions:
                     state.all_sessions.add(session)
+                    print(f'Sending target {state.target}')
                     await session.send_notification('mining.set_target', (state.target,))
                     await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 state.new_sessions.clear()
