@@ -162,7 +162,7 @@ class StratumSession(RPCSession):
                 if json_resp.get('result', None):
                     raise RPCError(1, json_resp['result'])
 
-        await self.send_notification('mining.set_target', ('00'*32,))
+        await self.send_notification('mining.set_target', ('00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',))
         await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
 
         return True
