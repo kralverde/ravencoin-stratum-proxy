@@ -333,7 +333,7 @@ if __name__ == '__main__':
     # The shared state
     state = TemplateState()
         
-    session_generator = partial(StratumSession, state, node_url, node_username, node_password, node_port, testnet)
+    session_generator = partial(StratumSession, state, testnet, node_url, node_username, node_password, node_port)
 
     async def beginServing():
         server = await serve_rs(session_generator, 'localhost', proxy_port, reuse_address=True)
