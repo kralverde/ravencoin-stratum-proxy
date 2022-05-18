@@ -101,6 +101,8 @@ class StratumSession(RPCSession):
         self._node_password = node_password
         self._node_port = node_port
 
+        self.previous_job = None
+
         self.handlers = {
             'mining.subscribe': self.handle_subscribe,
             'mining.authorize': self.handle_authorize,
@@ -134,6 +136,11 @@ class StratumSession(RPCSession):
         return True
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
+
+        if self.previous_job == header_hex:
+            # Is there any way around this?
+            return True
+
         if nonce_hex[:2].lower() == '0x':
             nonce_hex = nonce_hex[2:]
         nonce_hex = bytes.fromhex(nonce_hex)[::-1].hex()
@@ -162,6 +169,7 @@ class StratumSession(RPCSession):
                 if json_resp.get('result', None):
                     raise RPCError(1, json_resp['result'])
 
+        self.previous_job = header_hex
         await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
 
         return True
