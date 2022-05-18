@@ -269,13 +269,17 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     state.headerHash = dsha256(state.header)[::-1].hex()
 
                     for session in state.all_sessions:
-                        await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
+                        print('Sending new state:')
+                        print(state)
+                        print()
+                        await session.send_notification('mining.set_target', (target_hex,))
+                        await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
                 
                 for session in state.new_sessions:
                     state.all_sessions.add(session)
                     print('Sending:')
                     print(state)
-
+                    print()
                     await session.send_notification('mining.set_target', (target_hex,))
                     await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
                 state.new_sessions.clear()
