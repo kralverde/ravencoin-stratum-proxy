@@ -140,7 +140,12 @@ class StratumSession(RPCSession):
         print(header_hex)
         block_hex = self._state.build_block(nonce_hex, mixhash_hex)
 
-        await self._submit(block_hex)
+        try:
+            await self._submit(block_hex)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            exit()
         return True
 
 async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int):
@@ -283,7 +288,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
             except Exception as e:
                 print('Failed to query blocktemplate from node')
                 import traceback
-                traceback.print_exception(e)
+                traceback.print_exc()
                 exit(1)
 
 if __name__ == '__main__':
