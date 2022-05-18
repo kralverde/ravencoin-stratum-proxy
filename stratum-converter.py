@@ -4,6 +4,7 @@ import time
 import sys
 
 import base58
+from requests import head
 import sha3
 
 from aiohttp import ClientSession
@@ -280,6 +281,10 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                         k.update(seed_hash)
                         seed_hash = k.digest()
 
+                    if seed_hash != state.seedHash:
+                        print(f'{seed_hash} vs {state.seedHash}')
+                        exit()
+
                     partial_header = state.height.to_bytes(4, 'big') + \
                                     bytes.fromhex(state.bits) + \
                                     int(time.time()).to_bytes(4, 'big') + \
@@ -287,10 +292,13 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                                     state.prevHash[::-1] + \
                                     state.version.to_bytes(4, 'big')
             
-                    header_hash = dsha256(partial_header[::-1])[::-1]
+                    header_hash = dsha256(partial_header[::-1])[::-1].hex()
+                    if header_hash != state.headerHash:
+                        print(f'{header_hash} vs {state.headerHash}')
+                        exit()
 
                     await session.send_notification('mining.set_target', (state.target,))
-                    await session.send_notification('mining.notify', ('0', header_hash.hex(), seed_hash.hex(), state.target, True, state.height, state.bits))
+                    await session.send_notification('mining.notify', ('0', header_hash, seed_hash.hex(), state.target, True, state.height, state.bits))
                 state.new_sessions.clear()
 
             except Exception as e:

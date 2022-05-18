@@ -218,7 +218,7 @@ class StratumSession(RPCSession):
             
 async def execute():
 
-    
+    '''
     reader, writer = await asyncio.open_connection('rvn.2miners.com', 6060)
     writer.write('{"id": 1, "method": "mining.subscribe", "params": []}\n'.encode('utf8'))
     writer.write('{"params": ["RMbuKtJdFf66Pr31shRZFf7fk3QsgJHbPS.miner1", "x"], "id": 2, "method": "mining.authorize"}\n'.encode('utf8'))
@@ -256,7 +256,7 @@ async def execute():
     if len(sys.argv) > 6:
         testnet = bool(sys.argv[6])
 
-
+    '''
     tx = TransactionState()
 
     session_generator = partial(StratumSession, node_ip, node_username, node_password, node_port, testnet, tx)
