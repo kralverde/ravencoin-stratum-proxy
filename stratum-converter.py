@@ -148,7 +148,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
         'jsonrpc':'2.0',
         'id':'0',
         'method':'getblocktemplate',
-        'params':[]
+        'params':[{"capabilities": ["coinbasetxn", "workid", "coinbase/append"], "rules": ["segwit"]}]
     }
     async with ClientSession() as session:
         async with session.post(f'http://{node_username}:{node_password}@{node_url}:{node_port}', data=json.dumps(data)) as resp:
@@ -274,31 +274,8 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     print('Sending:')
                     print(state)
 
-
-                    seed_hash = bytes(32)
-                    for _ in range(state.height//KAWPOW_EPOCH_LENGTH):
-                        k = sha3.keccak_256()
-                        k.update(seed_hash)
-                        seed_hash = k.digest()
-
-                    if seed_hash != state.seedHash:
-                        print(f'{seed_hash} vs {state.seedHash}')
-                        exit()
-
-                    partial_header = state.height.to_bytes(4, 'big') + \
-                                    bytes.fromhex(state.bits) + \
-                                    int(time.time()).to_bytes(4, 'big') + \
-                                    state.coinbase_txid[::-1] + \
-                                    state.prevHash[::-1] + \
-                                    state.version.to_bytes(4, 'big')
-            
-                    header_hash = dsha256(partial_header[::-1])[::-1].hex()
-                    if header_hash != state.headerHash:
-                        print(f'{header_hash} vs {state.headerHash}')
-                        exit()
-
                     await session.send_notification('mining.set_target', (target_hex,))
-                    await session.send_notification('mining.notify', ('0', header_hash, seed_hash.hex(), target_hex, True, state.height, bits_hex))
+                    await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
                 state.new_sessions.clear()
 
             except Exception as e:
