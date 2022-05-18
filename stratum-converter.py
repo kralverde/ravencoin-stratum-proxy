@@ -140,13 +140,7 @@ class StratumSession(RPCSession):
         print(header_hex)
         block_hex = self._state.build_block(nonce_hex, mixhash_hex)
 
-        try:
-            await self._submit(block_hex)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            exit()
-        return True
+        return await self._submit(block_hex)
 
 async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int):
     if not state.address:
@@ -327,6 +321,7 @@ if __name__ == '__main__':
                     raise RPCError(1, json_resp['error'])
                 if json_resp.get('result', None):
                     raise RPCError(1, json_resp['result'])
+        return True
 
     session_generator = partial(StratumSession, state, submit, testnet)
 
