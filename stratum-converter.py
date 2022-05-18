@@ -290,7 +290,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     header_hash = dsha256(partial_header[::-1])[::-1]
 
                     await session.send_notification('mining.set_target', (state.target,))
-                    await session.send_notification('mining.notify', ('0', header_hash, seed_hash.hex(), state.target, True, state.height, state.bits))
+                    await session.send_notification('mining.notify', ('0', header_hash.hex(), seed_hash.hex(), state.target, True, state.height, state.bits))
                 state.new_sessions.clear()
 
             except Exception as e:
