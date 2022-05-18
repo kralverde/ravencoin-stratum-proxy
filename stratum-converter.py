@@ -272,8 +272,25 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     state.all_sessions.add(session)
                     print('Sending:')
                     print(state)
+
+
+                    seed_hash = bytes(32)
+                    for _ in range(state.height//KAWPOW_EPOCH_LENGTH):
+                        k = sha3.keccak_256()
+                        k.update(seed_hash)
+                        seed_hash = k.digest()
+
+                    partial_header = state.height.to_bytes(4, 'big') + \
+                                    bytes.fromhex(state.bits) + \
+                                    int(time.time()).to_bytes(4, 'big') + \
+                                    state.coinbase_txid[::-1] + \
+                                    state.prevHash[::-1] + \
+                                    state.version.to_bytes(4, 'big')
+            
+                    header_hash = dsha256(partial_header[::-1])[::-1]
+
                     await session.send_notification('mining.set_target', (state.target,))
-                    await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
+                    await session.send_notification('mining.notify', ('0', header_hash, seed_hash.hex(), state.target, True, state.height, state.bits))
                 state.new_sessions.clear()
 
             except Exception as e:
