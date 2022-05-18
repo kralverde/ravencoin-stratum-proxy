@@ -130,8 +130,10 @@ class StratumSession(RPCSession):
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
         if nonce_hex[:2].lower() == '0x':
             nonce_hex = nonce_hex[2:]
+        nonce_hex = bytes.fromhex(nonce_hex)[::-1].hex()
         if mixhash_hex[:2].lower() == '0x':
             mixhash_hex = mixhash_hex[2:]
+        mixhash_hex = bytes.fromhex(mixhash_hex)[::-1].hex()
         
         print(worker)
         print(job_id)
@@ -148,7 +150,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
         'jsonrpc':'2.0',
         'id':'0',
         'method':'getblocktemplate',
-        'params':[{"capabilities": ["coinbasetxn", "workid", "coinbase/append"], "rules": ["segwit"]}]
+        'params':[]
     }
     async with ClientSession() as session:
         async with session.post(f'http://{node_username}:{node_password}@{node_url}:{node_port}', data=json.dumps(data)) as resp:

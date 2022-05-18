@@ -267,7 +267,7 @@ async def execute():
             'jsonrpc':'2.0',
             'id':'0',
             'method':'getblocktemplate',
-            'params':[{"capabilities": ["coinbasetxn", "workid", "coinbase/append"], "rules": ["segwit"]}]
+            'params':[]
         }
         height = -1
         while True:
