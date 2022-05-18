@@ -82,7 +82,7 @@ class TemplateState:
     awaiting_update = False
 
     def __repr__(self):
-        return f'Height:\t\t{self.height}\nAddress:\t\t{self.address}\nBits:\t\t{self.bits.hex()}\nTarget:\t\t{self.target.hex()}\nHeader Hash:\t\t{self.headerHash.hex()}\nVersion:\t\t{self.version}\nPrevious Header:\t\t{self.prevHash}\nExtra Txs:\t\t{self.externalTxs}\nSeed Hash:\t\t{self.seedHash.hex()}\nHeader:\t\t{self.header.hex()}\nCoinbase:\t\t{self.coinbase_tx}\nCoinbase txid:\t\t{self.coinbase_txid}\nNew sessions:\t\t{self.new_sessions}\nSessions:\t\t{self.all_sessions}'
+        return f'Height:\t\t{self.height}\nAddress:\t\t{self.address}\nBits:\t\t{self.bits}\nTarget:\t\t{self.target}\nHeader Hash:\t\t{self.headerHash}\nVersion:\t\t{self.version}\nPrevious Header:\t\t{self.prevHash.hex()}\nExtra Txs:\t\t{self.externalTxs}\nSeed Hash:\t\t{self.seedHash.hex()}\nHeader:\t\t{self.header.hex()}\nCoinbase:\t\t{self.coinbase_tx.hex()}\nCoinbase txid:\t\t{self.coinbase_txid.hex()}\nNew sessions:\t\t{self.new_sessions}\nSessions:\t\t{self.all_sessions}'
 
     def build_block(self, nonce: str, mixHash: str) -> str:
         return self.header.hex() + nonce + mixHash + var_int(len(self.externalTxs) + 1).hex() + self.coinbase_tx.hex() + ''.join(self.externalTxs)
