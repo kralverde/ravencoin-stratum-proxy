@@ -132,6 +132,7 @@ class StratumSession(RPCSession):
         if mixhash_hex[:2].lower() == '0x':
             mixhash_hex = mixhash_hex[2:]
         
+        print(header_hex)
         block_hex = self._state.build_block(nonce_hex, mixhash_hex)
 
         await self._submit(block_hex)
