@@ -272,7 +272,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                 for session in state.new_sessions:
                     state.all_sessions.add(session)
                     print(f'Sending target {state.target}')
-                    await session.send_notification('mining.set_target', (state.target,))
+                    #await session.send_notification('mining.set_target', (state.target,))
                     await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 state.new_sessions.clear()
 
