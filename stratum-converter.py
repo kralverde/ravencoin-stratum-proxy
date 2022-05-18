@@ -82,7 +82,7 @@ class TemplateState:
     awaiting_update = False
 
     def __repr__(self):
-        return f'{self.height} {self.address} {self.bits} {self.target} {self.headerHash} {self.version} {self.prevHash} {self.externalTxs} {self.seedHash} {self.header} {self.coinbase_tx} {self.coinbase_txid} {self.new_sessions} {self.all_sessions}'
+        return f'Height:\t\t{self.height}\nAddress:\t\t{self.address}\nBits:\t\t{self.bits.hex()}\nTarget:\t\t{self.target.hex()}\nHeader Hash:\t\t{self.headerHash.hex()}\nVersion:\t\t{self.version}\nPrevious Header:\t\t{self.prevHash}\nExtra Txs:\t\t{self.externalTxs}\nSeed Hash:\t\t{self.seedHash.hex()}\nHeader:\t\t{self.header.hex()}\nCoinbase:\t\t{self.coinbase_tx}\nCoinbase txid:\t\t{self.coinbase_txid}\nNew sessions:\t\t{self.new_sessions}\nSessions:\t\t{self.all_sessions}'
 
     def build_block(self, nonce: str, mixHash: str) -> str:
         return self.header.hex() + nonce + mixHash + var_int(len(self.externalTxs) + 1).hex() + self.coinbase_tx.hex() + ''.join(self.externalTxs)
@@ -263,15 +263,13 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
 
                     state.headerHash = dsha256(state.header)[::-1].hex()
 
-                    #print(state)
-
                     for session in state.all_sessions:
                         print(f'Sending target {state.target}')
                         await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 
                 for session in state.new_sessions:
                     state.all_sessions.add(session)
-                    print(f'Sending target {state.target}')
+                    print(f'Sending {state}')
                     #await session.send_notification('mining.set_target', (state.target,))
                     await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 state.new_sessions.clear()
