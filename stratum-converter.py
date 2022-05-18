@@ -128,6 +128,7 @@ class StratumSession(RPCSession):
         return True
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
+        return True
         if nonce_hex[:2].lower() == '0x':
             nonce_hex = nonce_hex[2:]
         nonce_hex = bytes.fromhex(nonce_hex)[::-1].hex()
@@ -338,8 +339,6 @@ if __name__ == '__main__':
         async with TaskGroup(wait=any) as group:
             await group.spawn(beginServing())
             await group.spawn(updateState())
-
-        
 
         for task in group.tasks:
             if not task.cancelled():
