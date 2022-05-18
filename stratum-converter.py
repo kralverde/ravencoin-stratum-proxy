@@ -107,7 +107,7 @@ class StratumSession(RPCSession):
             handler = self.handlers.get(request.method, None)
         else:
             handler = None
-        await handler_invocation(handler, request)()
+        return await handler_invocation(handler, request)()
 
     async def connection_lost(self):
         self._state.new_sessions.discard(self)
@@ -128,7 +128,6 @@ class StratumSession(RPCSession):
         return True
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
-        return True
         if nonce_hex[:2].lower() == '0x':
             nonce_hex = nonce_hex[2:]
         nonce_hex = bytes.fromhex(nonce_hex)[::-1].hex()
@@ -136,6 +135,7 @@ class StratumSession(RPCSession):
             mixhash_hex = mixhash_hex[2:]
         mixhash_hex = bytes.fromhex(mixhash_hex)[::-1].hex()
         
+        print('Possible solution')
         print(worker)
         print(job_id)
         print(header_hex)
