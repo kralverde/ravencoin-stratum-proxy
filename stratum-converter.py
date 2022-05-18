@@ -90,12 +90,17 @@ class TemplateState:
 
 class StratumSession(RPCSession):
 
-    def __init__(self, state: TemplateState, submit: Callable[[str], Coroutine], testnet: bool, transport):
+    def __init__(self, state: TemplateState, testnet: bool, node_url: str, node_username: str, node_password: str, node_port: int, transport):
         connection = JSONRPCConnection(JSONRPCAutoDetect)
         super().__init__(transport, connection=connection)
         self._state = state
-        self._submit = submit
         self._testnet = testnet
+
+        self._node_url = node_url
+        self._node_username = node_username
+        self._node_password = node_password
+        self._node_port = node_port
+
         self.handlers = {
             'mining.subscribe': self.handle_subscribe,
             'mining.authorize': self.handle_authorize,
@@ -125,6 +130,7 @@ class StratumSession(RPCSession):
             raise RPCError(1, f'Invalid address {address}')
         if not self._state.address:
             self._state.address = address
+        await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
         return True
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
@@ -141,7 +147,24 @@ class StratumSession(RPCSession):
         print(header_hex)
         block_hex = self._state.build_block(nonce_hex, mixhash_hex)
 
-        return await self._submit(block_hex)
+        data = {
+            'jsonrpc':'2.0',
+            'id':'0',
+            'method':'submitblock',
+            'params':[block_hex]
+        }
+        async with ClientSession() as session:
+            async with session.post(f'http://{self._node_username}:{self._node_password}@{self._node_url}:{self._node_port}', data=json.dumps(data)) as resp:
+                json_resp = await resp.json()
+                print(json_resp)
+                if json_resp.get('error', None):
+                    raise RPCError(1, json_resp['error'])
+                if json_resp.get('result', None):
+                    raise RPCError(1, json_resp['result'])
+
+        await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
+
+        return True
 
 async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int):
     if not state.address:
@@ -297,7 +320,7 @@ if __name__ == '__main__':
         exit(0)
 
     proxy_port = int(sys.argv[1])
-    node_ip = str(sys.argv[2])
+    node_url = str(sys.argv[2])
     node_username = str(sys.argv[3])
     node_password = str(sys.argv[4])
     node_port = int(sys.argv[5])
@@ -309,45 +332,11 @@ if __name__ == '__main__':
 
     # The shared state
     state = TemplateState()
-
-    async def submit(block_hex: str):
-        print(block_hex)
-        data = {
-            'jsonrpc':'2.0',
-            'id':'0',
-            'method':'submitblock',
-            'params':[block_hex]
-        }
-        async with ClientSession() as session:
-            async with session.post(f'http://{node_username}:{node_password}@{node_ip}:{node_port}', data=json.dumps(data)) as resp:
-                json_resp = await resp.json()
-                print(json_resp)
-                if json_resp.get('error', None):
-                    raise RPCError(1, json_resp['error'])
-                if json_resp.get('result', None):
-                    raise RPCError(1, json_resp['result'])
-        return True
-
-    session_generator = partial(StratumSession, state, submit, testnet)
-
-    async def updateState():
-        while True:
-            await stateUpdater(state, node_ip, node_username, node_password, node_port)
-            await asyncio.sleep(0.1)
+        
+    session_generator = partial(StratumSession, state, node_url, node_username, node_password, node_port, testnet)
 
     async def beginServing():
         server = await serve_rs(session_generator, 'localhost', proxy_port, reuse_address=True)
         await server.serve_forever()
 
-    async def execute():
-        async with TaskGroup(wait=any) as group:
-            await group.spawn(beginServing())
-            await group.spawn(updateState())
-
-        for task in group.tasks:
-            if not task.cancelled():
-                exc = task.exception()
-                if exc:
-                    raise exc
-
-    asyncio.run(execute())
+    asyncio.run(beginServing())
