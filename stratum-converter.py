@@ -132,6 +132,8 @@ class StratumSession(RPCSession):
         if mixhash_hex[:2].lower() == '0x':
             mixhash_hex = mixhash_hex[2:]
         
+        print(worker)
+        print(job_id)
         print(header_hex)
         block_hex = self._state.build_block(nonce_hex, mixhash_hex)
 
@@ -264,13 +266,13 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     state.headerHash = dsha256(state.header)[::-1].hex()
 
                     for session in state.all_sessions:
-                        print(f'Sending target {state.target}')
                         await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 
                 for session in state.new_sessions:
                     state.all_sessions.add(session)
-                    print(f'Sending {state}')
-                    #await session.send_notification('mining.set_target', (state.target,))
+                    print('Sending:')
+                    print(state)
+                    await session.send_notification('mining.set_target', (state.target,))
                     await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), state.target, True, state.height, state.bits))
                 state.new_sessions.clear()
 

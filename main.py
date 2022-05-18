@@ -228,7 +228,7 @@ async def execute():
     print(await reader.readuntil(b'\n'))
     print(await reader.readuntil(b'\n'))
     print(await reader.readuntil(b'\n'))
-    '''
+    
     print(await reader.readuntil(b'\n'))
     print(await reader.readuntil(b'\n'))
     print(await reader.readuntil(b'\n'))
@@ -242,7 +242,7 @@ async def execute():
     print(await reader.readuntil(b'\n'))
 
     exit()
-    '''
+    
     if len(sys.argv) < 6:
         print('arguments must be: proxy_port, node_ip, node_username, node_password, node_port, (testnet - optional)')
         exit(0)
