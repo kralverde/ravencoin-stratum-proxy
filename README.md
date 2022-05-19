@@ -15,5 +15,7 @@ rpcallowip=127.0.0.1
 ```
 
 Ex.
+```
 python3 stratum-converter.py 54325 127.0.0.1 my_username my_password 18766 true
 t-rex.exe -a kawpow -o stratum+tcp://127.0.0.1:54325 -u YOUR_WALLET_ADDRESS -p x
+```
