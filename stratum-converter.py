@@ -126,7 +126,8 @@ class StratumSession(RPCSession):
 
     async def handle_subscribe(self, *args):
         # Dummy data
-        self._state.new_sessions.add(self)
+        if self not in self._state.all_sessions:
+            self._state.new_sessions.add(self)
         return ['00'*4, 'c0']
     
     async def handle_authorize(self, username: str, password: str):
@@ -142,7 +143,10 @@ class StratumSession(RPCSession):
 
         if job_id != state.job_counter:
             print('An old job was submitted')
-            return True
+            # Maybe it wasn't updated?
+            self._state.job_counter += 1
+            await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
+            raise RPCError(1, 'Miner submitted a job that was not the current request; trying to force an update')
 
         if nonce_hex[:2].lower() == '0x':
             nonce_hex = nonce_hex[2:]
@@ -204,17 +208,17 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                 target_hex: str = json_obj['result']['target']
 
                 ts = int(time.time())
+                state.target = target_hex
+                state.bits = bits_hex
+                state.version = version_int
+                state.prevHash = bytes.fromhex(prev_hash_hex)[::-1]
+
                 new_block = False
 
                 if state.height == -1 or state.height != height_int:
                     # New block, update everything
                     print('New block, update state')
                     new_block = True
-
-                    state.target = target_hex
-                    state.bits = bits_hex
-                    state.version = version_int
-                    state.prevHash = bytes.fromhex(prev_hash_hex)[::-1]
 
                     # Generate seed hash #
                     if state.height == - 1 or height_int > state.height:
