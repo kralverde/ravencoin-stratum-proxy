@@ -131,6 +131,7 @@ class StratumSession(RPCSession):
         return ['00'*4, 'c0']
     
     async def handle_authorize(self, username: str, password: str):
+        # The first address that connects is the one that is used
         address = username.split('.')[0]
         if base58.b58decode_check(address)[0] != (111 if self._testnet else 60):
             raise RPCError(1, f'Invalid address {address}')
@@ -141,7 +142,7 @@ class StratumSession(RPCSession):
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
 
-        if job_id != state.job_counter:
+        if job_id != hex(state.job_counter)[2:]:
             print('An old job was submitted')
             # Maybe it wasn't updated?
             self._state.job_counter += 1
