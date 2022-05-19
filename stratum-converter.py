@@ -103,8 +103,6 @@ class StratumSession(RPCSession):
         self._node_password = node_password
         self._node_port = node_port
 
-        self.previous_job = None
-
         self.handlers = {
             'mining.subscribe': self.handle_subscribe,
             'mining.authorize': self.handle_authorize,
@@ -137,7 +135,6 @@ class StratumSession(RPCSession):
             raise RPCError(1, f'Invalid address {address}')
         if not self._state.address:
             self._state.address = address
-        await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
         return True
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
@@ -149,10 +146,7 @@ class StratumSession(RPCSession):
 
         if job_id != hex(state.job_counter)[2:]:
             print('An old job was submitted')
-            # Maybe it wasn't updated?
-            self._state.job_counter += 1
-            await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port, True)
-            raise RPCError(1, 'Miner submitted a job that was not the current request; trying to force an update')
+            raise RPCError(1, 'Miner submitted a job that was not the current request')
 
         if nonce_hex[:2].lower() == '0x':
             nonce_hex = nonce_hex[2:]
@@ -174,18 +168,13 @@ class StratumSession(RPCSession):
                 json_resp = await resp.json()
                 print(json_resp)
                 if json_resp.get('error', None):
-                    await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
                     raise RPCError(1, json_resp['error'])
                 result = json_resp.get('result', None)
                 if result == 'inconclusive':
                     # inconclusive - valid submission but other block may be better, etc.
                     print('Valid block but inconclusive')
                 if result not in ('inconclusive',):
-                    await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
                     raise RPCError(1, json_resp['result'])
-
-        self.previous_job = header_hex
-        await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
 
         return True
 
