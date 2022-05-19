@@ -113,7 +113,8 @@ class StratumSession(RPCSession):
         if isinstance(request, Request):
             handler = self.handlers.get(request.method, None)
         else:
-            handler = None
+            # Do not fail on unknown method
+            return
         return await handler_invocation(handler, request)()
 
     async def connection_lost(self):
