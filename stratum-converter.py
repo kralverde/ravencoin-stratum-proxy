@@ -140,8 +140,8 @@ class StratumSession(RPCSession):
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
 
-        if self.previous_job == header_hex:
-            # Is there any way around this?
+        if job_id != state.job_counter:
+            print('An old job was submitted')
             return True
 
         if nonce_hex[:2].lower() == '0x':
