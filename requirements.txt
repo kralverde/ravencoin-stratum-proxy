@@ -2,4 +2,4 @@
  aiohttp==3.8.1
  aiorpcx==0.22.1
  pysha3==1.0.2
- 
+ requests==2.27.1
