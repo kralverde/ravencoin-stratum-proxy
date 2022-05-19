@@ -186,6 +186,11 @@ class StratumSession(RPCSession):
                 if result not in (None, 'inconclusive', 'duplicate', 'duplicate-inconclusive', 'inconclusive-not-best-prevblk'):
                     raise RPCError(20, json_resp['result'])
 
+        # Get height from block hex
+        block_height = int.from_bytes(bytes.fromhex(block_hex[(4+32+32+4+4)*2:(4+32+32+4+4+4)*2]), 'little', signed=False)
+        print(f'Found block: {block_height}')
+        self.send_notification('found_block', (block_height,))
+
         return True
 
 async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int, force = False):
