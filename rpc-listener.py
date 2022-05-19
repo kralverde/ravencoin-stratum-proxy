@@ -4,18 +4,16 @@ import socket
 import select
 
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print('Required args: (this port), (mining pool ip)')
+    if len(sys.argv) < 4:
+        print('Required args: (this port), (mining pool ip/url), (mining pool port)')
         exit()
 
     port = int(sys.argv[1])
     pool_url = str(sys.argv[2])
-    splitted = pool_url.split(':')
-    pool_port = int(splitted[-1])
-    pool_ip = splitted[0].split('/')[-1]
+    pool_port = int(sys.argv[3])
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as outgoing:
-        outgoing.connect((pool_ip, pool_port))
+        outgoing.connect((pool_url, pool_port))
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as incoming:
             incoming.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             incoming.bind(('127.0.0.1', port))
