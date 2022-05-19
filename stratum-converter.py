@@ -174,8 +174,14 @@ class StratumSession(RPCSession):
                 json_resp = await resp.json()
                 print(json_resp)
                 if json_resp.get('error', None):
+                    await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
                     raise RPCError(1, json_resp['error'])
-                if json_resp.get('result', None):
+                result = json_resp.get('result', None)
+                if result == 'inconclusive':
+                    # inconclusive - valid submission but other block may be better, etc.
+                    print('Valid block but inconclusive')
+                if result not in ('inconclusive',):
+                    await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
                     raise RPCError(1, json_resp['result'])
 
         self.previous_job = header_hex
@@ -217,7 +223,9 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
 
                 new_block = False
 
-                if force or state.height == -1 or state.height != height_int:
+                # The following will only change when there is a new block.
+                # Force update is unnecessary
+                if state.height == -1 or state.height != height_int:
                     # New block, update everything
                     print('New block, update state')
                     new_block = True
@@ -355,8 +363,26 @@ if __name__ == '__main__':
         
     session_generator = partial(StratumSession, state, testnet, node_url, node_username, node_password, node_port)
 
+    async def updateState():
+        while True:
+            await stateUpdater(state, node_url, node_username, node_password, node_port)
+            # Check for new blocks / new transactions every 0.1 seconds
+            # stateUpdater should fast fail if no differences
+            await asyncio.sleep(0.1)
+
     async def beginServing():
         server = await serve_rs(session_generator, 'localhost', proxy_port, reuse_address=True)
         await server.serve_forever()
 
-    asyncio.run(beginServing())
+    async def execute():
+        async with TaskGroup(wait=any) as group:
+            await group.spawn(updateState())
+            await group.spawn(beginServing())
+
+        for task in group.tasks:
+            if not task.cancelled():
+                exc = task.exception()
+                if exc:
+                    raise exc        
+
+    asyncio.run(execute())
