@@ -82,6 +82,8 @@ class TemplateState:
 
     awaiting_update = False
 
+    job_counter = 0
+
     def __repr__(self):
         return f'Height:\t\t{self.height}\nAddress:\t\t{self.address}\nBits:\t\t{self.bits}\nTarget:\t\t{self.target}\nHeader Hash:\t\t{self.headerHash}\nVersion:\t\t{self.version}\nPrevious Header:\t\t{self.prevHash.hex()}\nExtra Txs:\t\t{self.externalTxs}\nSeed Hash:\t\t{self.seedHash.hex()}\nHeader:\t\t{self.header.hex()}\nCoinbase:\t\t{self.coinbase_tx.hex()}\nCoinbase txid:\t\t{self.coinbase_txid.hex()}\nNew sessions:\t\t{self.new_sessions}\nSessions:\t\t{self.all_sessions}'
 
@@ -300,12 +302,14 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
 
                     state.headerHash = dsha256(state.header)[::-1].hex()
 
+                    state.job_counter += 1
+
                     for session in state.all_sessions:
                         print('Sending new state:')
                         print(state)
                         print()
                         await session.send_notification('mining.set_target', (target_hex,))
-                        await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
+                        await session.send_notification('mining.notify', (str(state.job_counter), state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
                 
                 for session in state.new_sessions:
                     state.all_sessions.add(session)
@@ -313,7 +317,8 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     print(state)
                     print()
                     await session.send_notification('mining.set_target', (target_hex,))
-                    await session.send_notification('mining.notify', ('0', state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
+                    await session.send_notification('mining.notify', (str(state.job_counter), state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
+                
                 state.new_sessions.clear()
 
             except Exception as e:
