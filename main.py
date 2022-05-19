@@ -218,8 +218,8 @@ class StratumSession(RPCSession):
             
 async def execute():
 
-    '''    
-    reader, writer = await asyncio.open_connection('solo-rvn.2miners.com', 7070)
+       
+    reader, writer = await asyncio.open_connection('localhost', 42069)
     writer.write('{"id": 1, "method": "mining.subscribe", "params": []}\n'.encode('utf8'))
     writer.write('{"params": ["RMbuKtJdFf66Pr31shRZFf7fk3QsgJHbPS.miner1", "x"], "id": 2, "method": "mining.authorize"}\n'.encode('utf8'))
     await writer.drain()
@@ -242,7 +242,7 @@ async def execute():
     print(await reader.readuntil(b'\n'))
 
     exit()
-    '''
+    
     if len(sys.argv) < 6:
         print('arguments must be: proxy_port, node_ip, node_username, node_password, node_port, (testnet - optional)')
         exit(0)

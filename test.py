@@ -133,5 +133,9 @@ if __name__ == '__main__':
     
     async def run():
         reader, writer = await asyncio.open_connection('localhost', 42069)
+        writer.write(b'TEST')
+        await writer.drain()
+        await asyncio.sleep(0)
+        await reader.read()
 
     asyncio.run(run())

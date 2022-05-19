@@ -124,7 +124,7 @@ class StratumSession(RPCSession):
     async def handle_subscribe(self, *args):
         # Dummy data
         self._state.new_sessions.add(self)
-        return ['00'*4, 4]
+        return ['00'*4, 'c0']
     
     async def handle_authorize(self, username: str, password: str):
         address = username.split('.')[0]
