@@ -134,7 +134,7 @@ class StratumSession(RPCSession):
         # The first address that connects is the one that is used
         address = username.split('.')[0]
         if base58.b58decode_check(address)[0] != (111 if self._testnet else 60):
-            raise RPCError(1, f'Invalid address {address}')
+            raise RPCError(20, f'Invalid address {address}')
         if not self._state.address:
             self._state.address = address
         return True
@@ -148,7 +148,7 @@ class StratumSession(RPCSession):
 
         if job_id != hex(state.job_counter)[2:]:
             print('An old job was submitted')
-            raise RPCError(1, 'Miner submitted a job that was not the current request')
+            raise RPCError(20, 'Miner submitted a job that was not the current request')
 
         if nonce_hex[:2].lower() == '0x':
             nonce_hex = nonce_hex[2:]
@@ -170,7 +170,7 @@ class StratumSession(RPCSession):
                 json_resp = await resp.json()
                 print(json_resp)
                 if json_resp.get('error', None):
-                    raise RPCError(1, json_resp['error'])
+                    raise RPCError(20, json_resp['error'])
                 
                 result = json_resp.get('result', None)
                 if result == 'inconclusive':
@@ -184,7 +184,7 @@ class StratumSession(RPCSession):
                     print('Valid block but inconclusive-not-best-prevblk')
                 
                 if result not in (None, 'inconclusive', 'duplicate', 'duplicate-inconclusive', 'inconclusive-not-best-prevblk'):
-                    raise RPCError(1, json_resp['result'])
+                    raise RPCError(20, json_resp['result'])
 
         return True
 
