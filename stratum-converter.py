@@ -142,6 +142,11 @@ class StratumSession(RPCSession):
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
 
+        print('Possible solution')
+        print(worker)
+        print(job_id)
+        print(header_hex)
+
         if job_id != hex(state.job_counter)[2:]:
             print('An old job was submitted')
             # Maybe it wasn't updated?
@@ -156,10 +161,6 @@ class StratumSession(RPCSession):
             mixhash_hex = mixhash_hex[2:]
         mixhash_hex = bytes.fromhex(mixhash_hex)[::-1].hex()
         
-        print('Possible solution')
-        print(worker)
-        print(job_id)
-        print(header_hex)
         block_hex = self._state.build_block(nonce_hex, mixhash_hex)
 
         data = {
