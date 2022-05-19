@@ -171,11 +171,19 @@ class StratumSession(RPCSession):
                 print(json_resp)
                 if json_resp.get('error', None):
                     raise RPCError(1, json_resp['error'])
+                
                 result = json_resp.get('result', None)
                 if result == 'inconclusive':
                     # inconclusive - valid submission but other block may be better, etc.
                     print('Valid block but inconclusive')
-                if result not in ('inconclusive',):
+                elif result == 'duplicate':
+                    print('Valid block but duplicate')
+                elif result == 'duplicate-inconclusive':
+                    print('Valid block but duplicate-inconclusive')
+                elif result == 'inconclusive-not-best-prevblk':
+                    print('Valid block but inconclusive-not-best-prevblk')
+                
+                if result not in (None, 'inconclusive', 'duplicate', 'duplicate-inconclusive', 'inconclusive-not-best-prevblk'):
                     raise RPCError(1, json_resp['result'])
 
         return True
