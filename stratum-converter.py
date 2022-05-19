@@ -112,6 +112,8 @@ class StratumSession(RPCSession):
     async def handle_request(self, request):
         if isinstance(request, Request):
             handler = self.handlers.get(request.method, None)
+            if not handler:
+                return
         else:
             # Do not fail on unknown method
             return
