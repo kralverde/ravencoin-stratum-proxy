@@ -145,7 +145,7 @@ class StratumSession(RPCSession):
             print('An old job was submitted')
             # Maybe it wasn't updated?
             self._state.job_counter += 1
-            await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port)
+            await stateUpdater(self._state, self._node_url, self._node_username, self._node_password, self._node_port, True)
             raise RPCError(1, 'Miner submitted a job that was not the current request; trying to force an update')
 
         if nonce_hex[:2].lower() == '0x':
@@ -181,7 +181,7 @@ class StratumSession(RPCSession):
 
         return True
 
-async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int):
+async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int, force = False):
     if not state.address:
         return
     data = {
@@ -215,7 +215,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
 
                 new_block = False
 
-                if state.height == -1 or state.height != height_int:
+                if force or state.height == -1 or state.height != height_int:
                     # New block, update everything
                     print('New block, update state')
                     new_block = True
@@ -284,7 +284,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     state.coinbase_txid = dsha256(coinbase_no_wit)
 
                 # The following occurs during both new blocks & new txs
-                if new_block or len(state.externalTxs) != len(txs_list):
+                if force or new_block or len(state.externalTxs) != len(txs_list):
                     # Create merkle & update txs
                     print('Updating transactions')
                     txids = [state.coinbase_txid]
