@@ -321,7 +321,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     print(state)
                     print()
                     await session.send_notification('mining.set_target', (target_hex,))
-                    await session.send_notification('mining.notify', (str(state.job_counter), state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
+                    await session.send_notification('mining.notify', (hex(state.job_counter)[2:], state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
                 
                 state.new_sessions.clear()
 
