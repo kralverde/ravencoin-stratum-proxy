@@ -146,9 +146,11 @@ class StratumSession(RPCSession):
         print(job_id)
         print(header_hex)
 
-        if job_id != hex(state.job_counter)[2:]:
-            print('An old job was submitted')
-            raise RPCError(20, 'Miner submitted a job that was not the current request')
+        # We can still propogate old jobs; there may be a chance that they get used
+
+        #if job_id != hex(state.job_counter)[2:]:
+        #    print('An old job was submitted')
+        #    raise RPCError(20, 'Miner submitted a job that was not the current request')
 
         if nonce_hex[:2].lower() == '0x':
             nonce_hex = nonce_hex[2:]
@@ -188,7 +190,7 @@ class StratumSession(RPCSession):
 
         # Get height from block hex
         block_height = int.from_bytes(bytes.fromhex(block_hex[(4+32+32+4+4)*2:(4+32+32+4+4+4)*2]), 'little', signed=False)
-        print(f'Found block: {block_height}')
+        print(f'Found block (may or may not be accepted by the chain): {block_height}')
         await self.send_notification('found_block', (block_height,))
 
         return True
@@ -273,10 +275,8 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     bip34_height = state.height.to_bytes(4, 'little')
                     while bip34_height[-1] == 0:
                         bip34_height = bip34_height[:-1]
-                    bip34_prefix = var_int(len(bip34_height)) + bip34_height + \
-                        (bytes.fromhex(coinbase_flags_hex) if coinbase_flags_hex else b'\0')
-                    arbitrary_data = b'/with a little help from http://github.com/kralverde/ravencoin-stratum-proxy/'
-                    coinbase_script = bip34_prefix + arbitrary_data
+                    arbitrary_data = b'with a little help from http://github.com/kralverde/ravencoin-stratum-proxy'
+                    coinbase_script = op_push(len(bip34_height)) + bip34_height + op_push(len(arbitrary_data)) + arbitrary_data
                     coinbase_txin = bytes(32) + b'\xff'*4 + var_int(len(coinbase_script)) + coinbase_script + b'\xff'*4
                     vout_to_miner = b'\x76\xa9\x14' + base58.b58decode_check(state.address)[1:] + b'\x88\xac'
                     witness_vout = bytes.fromhex(witness_hex)

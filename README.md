@@ -2,8 +2,6 @@
 
 Allows you to mine to your local wallet/node
 
-Simply run `python3 -m pip install -r requirements.txt` while in this directory
-
 For windows users, please see windows.md
 
 Requires the following raven.conf options:
@@ -13,6 +11,18 @@ rpcuser=my_username
 rpcpassword=my_password
 rpcallowip=127.0.0.1
 ```
+
+## How To:
+
+First, install python and git. May sure they are installed properly by typing `python3 -V` and `git --version`
+
+Next, download this repo with `git clone https://github.com/kralverde/ravencoin-stratum-proxy.git`
+
+Then, enter the repo with `cd ravencoin-stratum-proxy`
+
+Now you want to install dependencies  `python3 -m pip install -r requirements.txt` while in the ravencoin-stratum-proxy directory.
+
+Now run stratum-converter.py and connect with your miner.
 
 Ex.
 ```
