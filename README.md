@@ -20,7 +20,7 @@ Next, download this repo with `git clone https://github.com/kralverde/ravencoin-
 
 Then, enter the repo with `cd ravencoin-stratum-proxy`
 
-Now you want to install dependencies  `python3 -m pip install -r requirements.txt` while in the ravencoin-stratum-proxy directory.
+Now you want to install dependencies  `python3 -m pip install -r requirements.txt` while in the ravencoin-stratum-proxy directory. (If this fails try `pip3 install -r requirements.txt`)
 
 Now run stratum-converter.py and connect with your miner.
 
