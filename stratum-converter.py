@@ -276,7 +276,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     while bip34_height[-1] == 0:
                         bip34_height = bip34_height[:-1]
                     arbitrary_data = b'with a little help from http://github.com/kralverde/ravencoin-stratum-proxy'
-                    coinbase_script = op_push(len(bip34_height)) + bip34_height + op_push(len(arbitrary_data)) + arbitrary_data
+                    coinbase_script = op_push(len(bip34_height)) + bip34_height + b'\0' + op_push(len(arbitrary_data)) + arbitrary_data
                     coinbase_txin = bytes(32) + b'\xff'*4 + var_int(len(coinbase_script)) + coinbase_script + b'\xff'*4
                     vout_to_miner = b'\x76\xa9\x14' + base58.b58decode_check(state.address)[1:] + b'\x88\xac'
                     witness_vout = bytes.fromhex(witness_hex)
