@@ -1,3 +1,5 @@
+'''No unit tests lol just for debugging correct creation of blocks'''
+
 from hashlib import sha256
 
 def read_var_int(b: bytes):
