@@ -356,7 +356,7 @@ if __name__ == '__main__':
     node_username = str(sys.argv[3])
     node_password = str(sys.argv[4])
     node_port = int(sys.argv[5])
-    should_listen_externaly = int(sys.argv[6])
+    should_listen_externaly = bool(sys.argv[6])
     testnet = False
     if len(sys.argv) > 7:
         testnet = bool(sys.argv[7])
