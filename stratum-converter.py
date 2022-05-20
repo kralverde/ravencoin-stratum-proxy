@@ -376,7 +376,7 @@ if __name__ == '__main__':
             await asyncio.sleep(0.1)
 
     async def beginServing():
-        server = await serve_rs(session_generator, '0.0.0.0' if should_listen_externaly else '127.0.0.1', proxy_port, reuse_address=True)
+        server = await serve_rs(session_generator, None if should_listen_externaly else '127.0.0.1', proxy_port, reuse_address=True)
         await server.serve_forever()
 
     async def execute():
