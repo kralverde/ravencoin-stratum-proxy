@@ -1,5 +1,7 @@
 # ravencoin-stratum-proxy
 
+Requires python >=3.8
+
 Allows you to mine to your local wallet/node
 
 For windows users, please see windows.md
