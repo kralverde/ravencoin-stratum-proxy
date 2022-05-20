@@ -14,7 +14,7 @@ rpcallowip=127.0.0.1
 
 ## How To:
 
-First, install python and git. May sure they are installed properly by typing `python3 -V` and `git --version`
+First, install python and git. May sure they are installed properly by running `python3 -V` and `git --version`
 
 Next, download this repo with `git clone https://github.com/kralverde/ravencoin-stratum-proxy.git`
 
