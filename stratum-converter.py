@@ -190,8 +190,9 @@ class StratumSession(RPCSession):
 
         # Get height from block hex
         block_height = int.from_bytes(bytes.fromhex(block_hex[(4+32+32+4+4)*2:(4+32+32+4+4+4)*2]), 'little', signed=False)
-        print(f'Found block (may or may not be accepted by the chain): {block_height}')
-        await self.send_notification('found_block', (block_height,))
+        msg = f'Found block (may or may not be accepted by the chain): {block_height}'
+        print(msg)
+        await self.send_notification('client.show_message', (msg,))
 
         return True
 
