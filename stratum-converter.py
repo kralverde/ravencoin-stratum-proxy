@@ -347,8 +347,8 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 6:
-        print('arguments must be: proxy_port, node_ip, node_username, node_password, node_port, (testnet - optional)')
+    if len(sys.argv) < 7:
+        print('arguments must be: proxy_port, node_ip, node_username, node_password, node_port, listen_externally, (testnet - optional)')
         exit(0)
 
     proxy_port = int(sys.argv[1])
@@ -356,9 +356,10 @@ if __name__ == '__main__':
     node_username = str(sys.argv[3])
     node_password = str(sys.argv[4])
     node_port = int(sys.argv[5])
+    should_listen_externaly = int(sys.argv[6])
     testnet = False
-    if len(sys.argv) > 6:
-        testnet = bool(sys.argv[6])
+    if len(sys.argv) > 7:
+        testnet = bool(sys.argv[7])
 
     print('Starting stratum converter')
 
@@ -375,7 +376,7 @@ if __name__ == '__main__':
             await asyncio.sleep(0.1)
 
     async def beginServing():
-        server = await serve_rs(session_generator, 'localhost', proxy_port, reuse_address=True)
+        server = await serve_rs(session_generator, '0.0.0.0' if should_listen_externaly else '127.0.0.1', proxy_port, reuse_address=True)
         await server.serve_forever()
 
     async def execute():
