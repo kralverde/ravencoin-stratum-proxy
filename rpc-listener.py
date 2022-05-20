@@ -1,3 +1,5 @@
+'''Acts as a proxy and prints network traffic (for debugging)'''
+
 import sys
 import os
 import socket
