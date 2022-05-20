@@ -48,13 +48,50 @@ python3 -m pip install -r requirements.txt
 
 ### Windows setup:
 
+1. Download and install the latest version of [Python](https://www.python.org/downloads/)
+   - Run the executable and **Check** the `Add Python3 to PATH`! and press the `Install Now` option.
+   - press the `Disable path lenght limit` option.
 
-First, install python (https://www.python.org/downloads/) (make sure pip is installed as well) and git (https://git-scm.com/downloads). May sure they are installed properly by running `python3 -V` and `git --version`
+2. Download and install the latest version of [git](https://git-scm.com/download/win) 
+   - Should look like this -> `64-bit Git for Windows Setup.`
+   - Run the executable and press next througout the installation prompts.
+
+3. Write `cmd` in the windows start menu and open the "Command Promt".
+   - Make sure Python and Git are installed properly by running `python3 -V` and `git --version`
+   - Change the directory to the `Desktop` with the following command:
+     ```
+     cd Desktop
+     ```
+   - Now download the ravencoin-stratum-proxy repo onto the desktop with the following command:
+     ```
+     git clone https://github.com/kralverde/ravencoin-stratum-proxy.git
+     ```
+   - Change the current working directroy to the repo:
+     ```
+     cd ravencoin-stratum-proxy
+     ```
+   - Now install dependencies with
+     ```
+     pip3 install -r requirements.txt
+     ```
+     If you get an error message on pysha3 do the following:
+     * Downlod [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+     * Put the `vs_buildtools.exe` file in the ravencoin-stratum-proxy folder and run this command:
+       ```
+       vs_buildtools.exe --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+       ```
+     * After the install retry the command:
+       ```
+       pip3 install -r requirements.txt
+       ```
 
 
-Then, enter the repo with `cd ravencoin-stratum-proxy`
+© 2022 GitHub, Inc.
+Terms
+Privacy
 
-Now you want to install dependencies  `python3 -m pip install -r requirements.txt` while in the ravencoin-stratum-proxy directory. (If this fails try `pip3 install -r requirements.txt`)
+
+
 
 Now run stratum-converter.py and connect with your miner.
 
