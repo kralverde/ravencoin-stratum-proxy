@@ -68,29 +68,32 @@ Allows you to mine directly to your own local wallet/node with any mining softwa
 
 ## Node setup:
 
-Requires the following raven.conf options:
+Requires the following `raven.conf` options:
 ```
 server=1
 rpcuser=my_username
 rpcpassword=my_password
 rpcallowip=127.0.0.1
 ```
+For testnet you can add `testnet=1` to your `raven.conf`
+
 note:
 - Default Mainnet rpcport = `8766`
 - Default Testnet rpcport = `18766`
 
-Make sure you configure the rpcport on `stratum-converter.py` accordingly;
+Make sure you configure the rpcport on `stratum-converter.py` accordingly.
 
 ## Usage:
-The stratum converter uses the following flags `python stratum-converter.py Port_for_miner Ip_of_node Rpc_username Rpc_password Rpc_port Allow_external_connections Is_testnet` with this in mind we can run testnet from a local node with a local miner:
+The stratum converter uses the following flags `python stratum-converter.py Port_for_miner Ip_of_node Rpc_username Rpc_password Rpc_port Allow_external_connections Is_testnet(optional)` 
+
+With this in mind we can run **testnet** from a local node with a local miner:
 ```
 python stratum-converter.py 54325 127.0.0.1 my_username my_password 18766 false true
 ```
-And for a local node on mainnet but with an external miner:
+And for a local node on **mainnet** with an external miner:
 ```
 python stratum-converter.py 54325 127.0.0.1 my_username my_password 8766 true
 ```
-
 
 Connect to it with your miner of choise:
 
