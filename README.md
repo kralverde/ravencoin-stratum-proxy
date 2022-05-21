@@ -103,7 +103,7 @@ Connect to it with your miner of choise:
 | :heavy_check_mark: Works | TeamRedMiner | teamredminer -o stratum+tcp://127.0.0.1:54325 -u YOUR_WALLET_ADDRESS -p x |
 | :heavy_check_mark: Works | Gminer | miner --algo kawpow --server stratum+tcp://127.0.0.1:2555 --user YOUR_WALLET_ADDRESS --pass x |
 | :exclamation:   Errors | NBminer | :grey_question: |
-| :grey_question: Not tested | lawpowminer | kawpowminer -P stratum+tcp://YOUR_WALLET_ADDRESS.worker@192.168.1.43:2555 |
+| :grey_question: Not tested | lawpowminer | kawpowminer -P stratum+tcp://YOUR_WALLET_ADDRESS.worker@127.0.0.1:54325 |
 
 
 © 2022 GitHub, Inc.
