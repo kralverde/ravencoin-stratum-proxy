@@ -27,9 +27,9 @@ if __name__ == '__main__':
         outgoing.connect((pool_url, pool_port))
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as incoming:
             incoming.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            if should_listen_externaly
+            if should_listen_externaly:
                 incoming.bind(('0.0.0.0', port))
-            else
+            else:
                 incoming.bind(('127.0.0.1', port))
             incoming.listen()
             incoming_conn, addr = incoming.accept()
