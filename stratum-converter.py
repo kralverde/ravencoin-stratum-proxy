@@ -83,6 +83,8 @@ class TemplateState:
     awaiting_update = False
 
     job_counter = 0
+    
+    hashrate = 0
 
     def __repr__(self):
         return f'Height:\t\t{self.height}\nAddress:\t\t{self.address}\nBits:\t\t{self.bits}\nTarget:\t\t{self.target}\nHeader Hash:\t\t{self.headerHash}\nVersion:\t\t{self.version}\nPrevious Header:\t\t{self.prevHash.hex()}\nExtra Txs:\t\t{self.externalTxs}\nSeed Hash:\t\t{self.seedHash.hex()}\nHeader:\t\t{self.header.hex()}\nCoinbase:\t\t{self.coinbase_tx.hex()}\nCoinbase txid:\t\t{self.coinbase_txid.hex()}\nNew sessions:\t\t{self.new_sessions}\nSessions:\t\t{self.all_sessions}'
@@ -106,7 +108,8 @@ class StratumSession(RPCSession):
         self.handlers = {
             'mining.subscribe': self.handle_subscribe,
             'mining.authorize': self.handle_authorize,
-            'mining.submit': self.handle_submit
+            'mining.submit': self.handle_submit,
+            'eth_submitHashrate': self.handle_eth_submitHashrate
         }
 
     async def handle_request(self, request):
@@ -194,6 +197,14 @@ class StratumSession(RPCSession):
         print(msg)
         await self.send_notification('client.show_message', (msg,))
 
+        return True
+    
+    async def handle_eth_submitHashrate(self, worker: str, job_id: str, hashrate: str):
+    # The first address that connects is the one that is used
+        print('Miner Hashrate')
+        print(worker)
+        print(job_id)
+        print(hashrate)
         return True
 
 async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int, force = False):
