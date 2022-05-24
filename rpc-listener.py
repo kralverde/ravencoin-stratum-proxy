@@ -7,9 +7,9 @@ import select
 
 if __name__ == '__main__':
     def check_bool(x) -> bool:
-    if isinstance(x, str):
-        return x.lower()[0] == 't'
-    return bool(x)
+        if isinstance(x, str):
+            return x.lower()[0] == 't'
+        return bool(x)
 
     if len(sys.argv) < 4:
         print('Required args: (this port), (mining pool ip/url), (mining pool port), (allow external connections(opional))')
