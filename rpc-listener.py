@@ -18,7 +18,7 @@ if __name__ == '__main__':
     port = int(sys.argv[1])
     pool_url = str(sys.argv[2])
     pool_port = int(sys.argv[3])
-    should_listen_external = False
+    should_listen_externaly = False
     if len(sys.argv) > 4:
         should_listen_externaly = check_bool(sys.argv[4])
 
