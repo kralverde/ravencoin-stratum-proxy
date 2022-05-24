@@ -197,13 +197,11 @@ class StratumSession(RPCSession):
 
         return True
     
-    async def handle_eth_submitHashrate(self, value1: str, value2: str, value3: str, value4: str):
+    async def handle_eth_submitHashrate(self, hashrate: str, clientid: str):
     # The first address that connects is the one that is used
         print('Miner Hashrate')
-        print(value1)
-        print(value2)
-        print(value3)
-        print(value4)
+        print(hashrate)
+        print(clientid)
         return True
 
 async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int, force = False):
