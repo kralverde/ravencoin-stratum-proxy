@@ -106,7 +106,8 @@ class StratumSession(RPCSession):
         self.handlers = {
             'mining.subscribe': self.handle_subscribe,
             'mining.authorize': self.handle_authorize,
-            'mining.submit': self.handle_submit
+            'mining.submit': self.handle_submit,
+            'eth_submitHashrate': self.handle_eth_submitHashrate
         }
 
     async def handle_request(self, request):
@@ -194,6 +195,13 @@ class StratumSession(RPCSession):
         print(msg)
         await self.send_notification('client.show_message', (msg,))
 
+        return True
+    
+    async def handle_eth_submitHashrate(self, hashrate: str, clientid: str):
+    # The first address that connects is the one that is used
+        print('Miner Hashrate')
+        print(hashrate)
+        print(clientid)
         return True
 
 async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int, force = False):
