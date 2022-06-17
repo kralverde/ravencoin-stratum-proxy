@@ -352,7 +352,8 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                 print('Failed to query blocktemplate from node')
                 import traceback
                 traceback.print_exc()
-                exit(1)
+                print('Sleeping for 5 minutes.\nAny solutions found during this time may not be current.\nTry restarting the proxy.')
+                await asyncio.sleep(300)
 
 if __name__ == '__main__':
 
