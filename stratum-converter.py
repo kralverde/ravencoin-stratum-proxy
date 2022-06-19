@@ -279,6 +279,8 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     # Done with seed hash #
                     state.height = height_int
 
+                # The following occurs during both new blocks & new txs
+                if force or new_block or len(state.externalTxs) != len(txs_list):
                     # Generate coinbase #
 
                     bip34_height = state.height.to_bytes(4, 'little')
@@ -306,10 +308,8 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                                         bytes(4)
                     state.coinbase_txid = dsha256(coinbase_no_wit)
 
-                # The following occurs during both new blocks & new txs
-                if force or new_block or len(state.externalTxs) != len(txs_list):
+
                     # Create merkle & update txs
-                    print('Updating transactions')
                     txids = [state.coinbase_txid]
                     incoming_txs = []
                     for tx_data in txs_list:
@@ -332,17 +332,11 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     state.job_counter += 1
 
                     for session in state.all_sessions:
-                        print('Sending new state:')
-                        print(state)
-                        print()
                         await session.send_notification('mining.set_target', (target_hex,))
                         await session.send_notification('mining.notify', (hex(state.job_counter)[2:], state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
                 
                 for session in state.new_sessions:
                     state.all_sessions.add(session)
-                    print('Sending:')
-                    print(state)
-                    print()
                     await session.send_notification('mining.set_target', (target_hex,))
                     await session.send_notification('mining.notify', (hex(state.job_counter)[2:], state.headerHash, state.seedHash.hex(), target_hex, True, state.height, bits_hex))
                 
