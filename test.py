@@ -10,7 +10,7 @@ def read_var_int(b: bytes):
     if b[0] == 0xFE:
         return 5, int.from_bytes(b[1:5], 'big')
     else:
-        return 7, int.from_bytes(b[1:9], 'big')
+        return 9, int.from_bytes(b[1:9], 'big')
 
 def dsha256(b):
     return sha256(sha256(b).digest()).digest()
