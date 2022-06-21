@@ -88,11 +88,11 @@ The stratum converter uses the following flags `python stratum-converter.py Port
 
 With this in mind we can run **testnet** from a local node with a local miner:
 ```
-python stratum-converter.py 54325 localhost my_username my_password 18766 false true
+python3 stratum-converter.py 54325 localhost my_username my_password 18766 false true
 ```
 And for a local node on **mainnet** with an external miner:
 ```
-python stratum-converter.py 54325 localhost my_username my_password 8766 true
+python3 stratum-converter.py 54325 localhost my_username my_password 8766 true
 ```
 
 Connect to it with your miner of choise:
