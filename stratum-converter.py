@@ -198,10 +198,42 @@ class StratumSession(RPCSession):
         return True
     
     async def handle_eth_submitHashrate(self, hashrate: str, clientid: str):
-    # The first address that connects is the one that is used
-        print('Miner Hashrate')
-        print(hashrate)
-        print(clientid)
+    # The clienid is a random hex string
+        data = {
+            'jsonrpc':'2.0',
+            'id':'0',
+            'method':'getmininginfo',
+            'params':[]
+        }    
+        async with ClientSession() as session:    
+            async with session.post(f'http://{node_username}:{node_password}@{node_url}:{node_port}', data=json.dumps(data)) as resp:
+                try:
+                    json_obj = await resp.json()
+                    if json_obj.get('error', None):
+                        raise Exception(json_obj.get('error', None))
+
+                    blocks_int: int = json_obj['result']['blocks']
+                    difficulty_int: int = json_obj['result']['difficulty']
+                    networkhashps_int: int = json_obj['result']['networkhashps']
+                
+                
+                except Exception as e:
+                    print('Failed to query mininginfo from node')
+                    import traceback
+                    traceback.print_exc()
+                    exit(1)
+        
+        hashrate = int(hashrate, 16)
+        print(f'Client ID: {clientid}')
+        print(f'Miner Hashrate: {round(hashrate / 1000000, 2)}Mh/s')
+        print(f'Network Hashrate: {round(networkhashps_int / 1000000, 2)}Mh/s')
+        if hashrate != 0:
+            TTF = networkhashps_int / hashrate
+            msg = f'Time to find: {round(TTF, 2)} minutes'
+            print(msg)
+            await self.send_notification('client.show_message', (msg,))
+        else:
+            print('Mining software has yet to send data')
         return True
 
 async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int, force = False):
