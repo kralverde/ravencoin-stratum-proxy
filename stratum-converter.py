@@ -22,23 +22,23 @@ def var_int(i: int) -> bytes:
     # "CompactSize"
     assert i >= 0, i
     if i<0xfd:
-        return i.to_bytes(1, 'big')
+        return i.to_bytes(1, 'little')
     elif i<=0xffff:
-        return b'\xfd'+i.to_bytes(2, 'big')
+        return b'\xfd'+i.to_bytes(2, 'little')
     elif i<=0xffffffff:
-        return b'\xfe'+i.to_bytes(4, 'big')
+        return b'\xfe'+i.to_bytes(4, 'little')
     else:
-        return b'\xff'+i.to_bytes(8, 'big')
+        return b'\xff'+i.to_bytes(8, 'little')
 
 def op_push(i: int) -> bytes:
     if i < 0x4C:
-        return i.to_bytes(1, 'big')
+        return i.to_bytes(1, 'little')
     elif i <= 0xff:
-        return b'\x4C'+i.to_bytes(1, 'big')
+        return b'\x4c'+i.to_bytes(1, 'little')
     elif i <= 0xffff:
-        return b'\x4D'+i.to_bytes(2, 'big')
+        return b'\x4d'+i.to_bytes(2, 'little')
     else:
-        return b'\x4E'+i.to_bytes(4, 'big')
+        return b'\x4e'+i.to_bytes(4, 'little')
 
 
 def dsha256(b):
