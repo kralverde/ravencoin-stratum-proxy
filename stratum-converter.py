@@ -326,6 +326,13 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     coinbase_script = op_push(len(bip34_height)) + bip34_height + b'\0' + op_push(len(arbitrary_data)) + arbitrary_data
                     coinbase_txin = bytes(32) + b'\xff'*4 + var_int(len(coinbase_script)) + coinbase_script + b'\xff'*4
                     vout_to_miner = b'\x76\xa9\x14' + base58.b58decode_check(state.address)[1:] + b'\x88\xac'
+
+                    # https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#commitment-structure
+                    # Because the coinbase tx is '00'*32 in witness commit,
+                    # We can take what the node gives us directly without changing it
+                    # (This assumes that the txs are in the correct order, but I think
+                    # that is a safe assumption)
+
                     witness_vout = bytes.fromhex(witness_hex)
 
                     state.coinbase_tx = (int(1).to_bytes(4, 'little') + \
