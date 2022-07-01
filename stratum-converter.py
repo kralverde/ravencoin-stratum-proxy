@@ -77,6 +77,8 @@ class TemplateState:
     coinbase_tx: Optional[bytes] = None
     coinbase_txid: Optional[bytes] = None
 
+    current_commitment: Optional[str] = None
+
     new_sessions: Set[RPCSession] = set()
     all_sessions: Set[RPCSession] = set()
 
@@ -236,7 +238,7 @@ class StratumSession(RPCSession):
             print('Mining software has yet to send data')
         return True
 
-async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int, force = False):
+async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int):
     if not state.address:
         return
     data = {
@@ -263,6 +265,8 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                 target_hex: str = json_obj['result']['target']
 
                 ts = int(time.time())
+                new_witness = witness_hex != state.current_commitment
+                state.current_commitment = witness_hex
                 state.target = target_hex
                 state.bits = bits_hex
                 state.version = version_int
@@ -312,7 +316,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     state.height = height_int
 
                 # The following occurs during both new blocks & new txs
-                if force or new_block or len(state.externalTxs) != len(txs_list):
+                if new_block or new_witness:
                     # Generate coinbase #
 
                     bip34_height = state.height.to_bytes(4, 'little')
