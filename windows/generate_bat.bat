@@ -8,12 +8,24 @@ if NOT "%CURRENT_DIRECTORY:~-33%" == "\ravencoin-stratum-proxy\windows\" (
 
 echo checking for python...
 
-echo downloading python...
-powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile python.zip"
+if exist "%CURRENT_DIRECTORY%\python_files\python.exe" (
 
-echo extracting python...
-powershell Expand-Archive python.zip -DestinationPath python_files
+    echo python.exe exists... assuming all dependancies are installed....
 
+) ELSE (
+    echo f8ed5e019d7bc6dba1d7dfa5d59052b5241c37e8eaa5293133c898ac7acedb98
+
+    echo downloading python...
+    powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile python.zip"
+
+    powershell -Command "Get-FileHash python.zip -Algorithm SHA256"
+
+    echo extracting python...
+    powershell -Command "Expand-Archive python.zip -DestinationPath python_files"
+
+    echo removing archive...
+    del python.zip
+)
 pause
 exit /B
 
