@@ -51,6 +51,20 @@ echo install pip modules...
 
 :SKIP_DOWNLOADS
 
+set "FILE_LOCATION=%CURRENT_DIRECTORY%..\run.bat"
+
+if exist "%FILE_LOCATION%" (
+
+    set /p "DO_RESET=run.bat already exists. Reset? y/n (Default n): "
+    if "%DO_RESET%" == "" (
+        set "DO_RESET=n"
+    )
+
+    if "%DO_RESET%" == "n" (
+        exit /B
+    )
+)
+
 echo ==========================================================
 :CHECK_MAINNET
 set "IS_MAINNET=y"
@@ -156,8 +170,6 @@ if NOT defined ALLOW_EXTERNAL_CONNECTIONS set "EXTERNAL_STRING_VALUE=false"
 
 set "TESTNET_STRING_VALUE=false"
 if NOT defined IS_MAINNET set "TESTNET_STRING_VALUE=true"
-
-set "FILE_LOCATION=%CURRENT_DIRECTORY%..\run.bat"
 
 echo generating bat file...
 echo %CURRENT_DIRECTORY%python_files\python.exe %CURRENT_DIRECTORY%..\stratum-converter.py %CONVERTER_PORT% %NODE_IP% %RPC_USERNAME% %RPC_PASSWORD% %NODE_PORT% %EXTERNAL_STRING_VALUE% %TESTNET_STRING_VALUE%>%FILE_LOCATION%
