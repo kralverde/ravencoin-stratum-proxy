@@ -1,4 +1,11 @@
 @echo off
+
+set "CURRENT_DIRECTORY=%~dp0"
+if NOT "%CURRENT_DIRECTORY:~-33%" == "\ravencoin-stratum-proxy\windows\" (
+    echo Error: Please run this batch file as-is from its original location in the ravencoin-stratum-proxy folder
+    exit /B
+)
+
 echo ==========================================================
 :CHECK_MAINNET
 set "IS_MAINNET=y"
@@ -88,14 +95,14 @@ echo ==========================================================
 :PRE_CHECK_PORT
 
 set /p "CONVERTER_PORT=What port would you like to run the converter on?: "
-if "%NODE_PORT%" == "" (
+if "%CONVERTER_PORT%" == "" (
     echo You must input a port.
     goto PRE_CHECK_PORT
 )
 
-set /a "TEST_PORT=%NODE_PORT%+0"
+set /a "TEST_PORT=%CONVERTER_PORT%+0"
 if %TEST_PORT% LEQ 1024 (
-    echo Not a valid port: %NODE_PORT%
+    echo Not a valid port: %CONVERTER_PORT%
     goto PRE_CHECK_PORT
 )
 
