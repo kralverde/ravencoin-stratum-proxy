@@ -20,22 +20,28 @@ powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/
 FOR /F "tokens=* USEBACKQ" %%F IN (`powershell -Command "Get-FileHash %CURRENT_DIRECTORY%python.zip -Algorithm SHA256 | Select-Object -ExpandProperty Hash"`) DO (
     set HASH=%%F
 )
-echo Downloaded Hash: %HASH%
+echo downloaded python hash: %HASH%
 if NOT "%HASH%" == "F8ED5E019D7BC6DBA1D7DFA5D59052B5241C37E8EAA5293133C898AC7ACEDB98" (
     echo warning: hash mismatch! exiting and removing the file.
     del "%CURRENT_DIRECTORY%python.zip"
     pause
     exit /B
 )
-
+echo downloading pip installer
 powershell -Command "Invoke-WebRequest https://bootstrap.pypa.io/get-pip.py -OutFile %CURRENT_DIRECTORY%get-pip.py"
 
 echo extracting python...
 powershell -Command "Expand-Archive %CURRENT_DIRECTORY%python.zip -DestinationPath %CURRENT_DIRECTORY%python_files"
 
+echo installing pip...
+%CURRENT_DIRECTORY%python_files\python.exe %CURRENT_DIRECTORY%get-pip.py
+
 echo removing archives...
 del "%CURRENT_DIRECTORY%python.zip"
 del "%CURRENT_DIRECTORY%get-pip.py"
+
+echo patching python...
+echo Lib\site-packages >> "%CURRENT_DIRECTORY%python_files\python39._pth"
 
 :SKIP_DOWNLOADS
 exit /B
