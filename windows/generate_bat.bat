@@ -10,31 +10,29 @@ echo checking for python...
 
 if exist "%CURRENT_DIRECTORY%\python_files\python.exe" (
 
-    pause
     echo python.exe exists... assuming all dependancies are installed....
 
 ) ELSE (
 
     echo downloading python...
-    pause
-    powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile python.zip"
+    powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile %CURRENT_DIRECTORY%\python.zip"
 
-    For /F "tokens=* USEBACKQ" %%G In ('powershell -Command "Get-FileHash python.zip -Algorithm SHA256 | Select-Object -ExpandProperty Hash"') Do Set "HASH=%%G"    
+    For /F "tokens=* USEBACKQ" %%G In ('powershell -Command "Get-FileHash %CURRENT_DIRECTORY%\python.zip -Algorithm SHA256 | Select-Object -ExpandProperty Hash"') Do Set "HASH=%%G"    
     echo %HASH%
     if NOT "%HASH%" == "F8ED5E019D7BC6DBA1D7DFA5D59052B5241C37E8EAA5293133C898AC7ACEDB98" (
         echo warning: hash mismatch! exiting and removing the file.
-        del python.zip
+        del %CURRENT_DIRECTORY%\python.zip
         pause
         exit /B
     )
 
-    powershell -Command "Invoke-WebRequest https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py"
+    powershell -Command "Invoke-WebRequest https://bootstrap.pypa.io/get-pip.py -OutFile %CURRENT_DIRECTORY%\get-pip.py"
     
     echo extracting python...
-    powershell -Command "Expand-Archive python.zip -DestinationPath python_files"
+    powershell -Command "Expand-Archive %CURRENT_DIRECTORY%\python.zip -DestinationPath %CURRENT_DIRECTORY%\python_files"
 
     echo removing archive...
-    del python.zip
+    del %CURRENT_DIRECTORY%\python.zip
 )
 pause
 exit /B
