@@ -6,6 +6,13 @@ if NOT "%CURRENT_DIRECTORY:~-33%" == "\ravencoin-stratum-proxy\windows\" (
     exit /B
 )
 
+echo checking for python...
+
+powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile python.zip"
+
+pause
+exit /B
+
 echo ==========================================================
 :CHECK_MAINNET
 set "IS_MAINNET=y"
