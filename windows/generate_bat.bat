@@ -18,7 +18,7 @@ if exist "%CURRENT_DIRECTORY%\python_files\python.exe" (
     echo downloading python...
     powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile python.zip"
 
-    powershell -Command "Get-FileHash python.zip -Algorithm SHA256"
+    powershell -Command "Get-FileHash python.zip -Algorithm SHA256 | Select-Object -Property Hash"
 
     echo extracting python...
     powershell -Command "Expand-Archive python.zip -DestinationPath python_files"
