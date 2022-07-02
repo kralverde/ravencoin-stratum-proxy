@@ -45,12 +45,11 @@ echo Lib\site-packages>> "%CURRENT_DIRECTORY%python_files\python39._pth"
 
 echo installing pre-built module...
 %CURRENT_DIRECTORY%python_files\python.exe -m pip install %CURRENT_DIRECTORY%python_modules\pysha3-1.0.3.dev1-cp39-cp39-win32.whl
-:SKIP_DOWNLOADS
 
 echo install pip modules...
 %CURRENT_DIRECTORY%python_files\python.exe -m pip install -r %CURRENT_DIRECTORY%..\requirements.txt
 
-exit /B
+:SKIP_DOWNLOADS
 
 echo ==========================================================
 :CHECK_MAINNET
@@ -158,6 +157,9 @@ if NOT defined ALLOW_EXTERNAL_CONNECTIONS set "EXTERNAL_STRING_VALUE=false"
 set "TESTNET_STRING_VALUE=false"
 if NOT defined IS_MAINNET set "TESTNET_STRING_VALUE=true"
 
-echo command to be written to the generated bat:
-echo python3.exe stratum-converter.py %CONVERTER_PORT% %NODE_IP% %RPC_USERNAME% %RPC_PASSWORD% %NODE_PORT% %EXTERNAL_STRING_VALUE% %TESTNET_STRING_VALUE%
+set "FILE_LOCATION=%CURRENT_DIRECTORY%..\run.bat"
+
+echo generating bat file...
+echo %CURRENT_DIRECTORY%python_files\python.exe %CURRENT_DIRECTORY%..\stratum-converter.py %CONVERTER_PORT% %NODE_IP% %RPC_USERNAME% %RPC_PASSWORD% %NODE_PORT% %EXTERNAL_STRING_VALUE% %TESTNET_STRING_VALUE%>%FILE_LOCATION%
+echo done... runnable bat can be found at %FILE_LOCATION%
 pause
