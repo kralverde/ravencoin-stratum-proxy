@@ -25,6 +25,8 @@ if exist "%CURRENT_DIRECTORY%\python_files\python.exe" (
         pause
         exit /B
     )
+
+    powershell -Command "Invoke-WebRequest https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py"
     
     echo extracting python...
     powershell -Command "Expand-Archive python.zip -DestinationPath python_files"
