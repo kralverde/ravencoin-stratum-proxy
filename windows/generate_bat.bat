@@ -41,7 +41,10 @@ del "%CURRENT_DIRECTORY%python.zip"
 del "%CURRENT_DIRECTORY%get-pip.py"
 
 echo patching python...
-echo Lib\site-packages >> "%CURRENT_DIRECTORY%python_files\python39._pth"
+echo Lib\site-packages>> "%CURRENT_DIRECTORY%python_files\python39._pth"
+
+echo installing pre-built module...
+%CURRENT_DIRECTORY%python_files\python.exe -m pip install %CURRENT_DIRECTORY%python_modules\pysha3-1.0.3.dev1-cp39-cp39-win32.whl
 
 :SKIP_DOWNLOADS
 exit /B
