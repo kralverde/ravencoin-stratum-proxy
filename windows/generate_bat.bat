@@ -17,7 +17,8 @@ if exist "%CURRENT_DIRECTORY%\python_files\python.exe" (
     echo downloading python...
     powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile python.zip"
 
-    For /F "delims=" %%G In ('powershell -Command "Get-FileHash python.zip -Algorithm SHA256 | Select-Object -ExpandProperty Hash"') Do Set "HASH=%%G"    
+    For /F "tokens=* USEBACKQ" %%G In ('powershell -Command "Get-FileHash python.zip -Algorithm SHA256 | Select-Object -ExpandProperty Hash"') Do Set "HASH=%%G"    
+    echo %HASH%
     if NOT "%HASH%" == "F8ED5E019D7BC6DBA1D7DFA5D59052B5241C37E8EAA5293133C898AC7ACEDB98" (
         echo warning: hash mismatch! exiting and removing the file.
         del python.zip
