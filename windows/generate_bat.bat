@@ -15,6 +15,7 @@ if exist "%CURRENT_DIRECTORY%\python_files\python.exe" (
 ) ELSE (
 
     echo downloading python...
+    pause
     powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile python.zip"
 
     For /F "tokens=* USEBACKQ" %%G In ('powershell -Command "Get-FileHash python.zip -Algorithm SHA256 | Select-Object -ExpandProperty Hash"') Do Set "HASH=%%G"    
