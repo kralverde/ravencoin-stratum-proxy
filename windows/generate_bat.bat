@@ -8,7 +8,11 @@ if NOT "%CURRENT_DIRECTORY:~-33%" == "\ravencoin-stratum-proxy\windows\" (
 
 echo checking for python...
 
+echo downloading python...
 powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile python.zip"
+
+echo extracting python...
+powershell Expand-Archive python.zip -DestinationPath python_files
 
 pause
 exit /B
