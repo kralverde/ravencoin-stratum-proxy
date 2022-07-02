@@ -47,7 +47,7 @@ echo installing pre-built module...
 %CURRENT_DIRECTORY%python_files\python.exe -m pip install %CURRENT_DIRECTORY%python_modules\pysha3-1.0.3.dev1-cp39-cp39-win32.whl
 
 echo install pip modules...
-%CURRENT_DIRECTORY%python_files\python.exe -m pip install -r %CURRENT_DIRECTORY%..\requirements.txt
+%CURRENT_DIRECTORY%python_files\python.exe -m pip install -r %CURRENT_DIRECTORY%requirements.txt
 
 :SKIP_DOWNLOADS
 
