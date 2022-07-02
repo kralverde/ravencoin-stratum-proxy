@@ -10,6 +10,7 @@ echo checking for python...
 
 if exist "%CURRENT_DIRECTORY%\python_files\python.exe" (
 
+    pause
     echo python.exe exists... assuming all dependancies are installed....
 
 ) ELSE (
