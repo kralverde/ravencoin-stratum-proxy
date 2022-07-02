@@ -54,7 +54,7 @@ echo install pip modules...
 set "FILE_LOCATION=%CURRENT_DIRECTORY%..\run.bat"
 
 if exist "%FILE_LOCATION%" (
-
+    echo ==========================================================
     set /p "DO_RESET=run.bat already exists. Reset? y/n (Default n): "
     if "%DO_RESET%" == "" (
         set "DO_RESET=n"
@@ -63,6 +63,7 @@ if exist "%FILE_LOCATION%" (
     if "%DO_RESET%" == "n" (
         exit /B
     )
+    echo regenerating run.bat ...
 )
 
 echo ==========================================================
