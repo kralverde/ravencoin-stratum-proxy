@@ -59,7 +59,7 @@ if exist "%FILE_LOCATION%" (
     if "%DO_RESET%" == "" (
         set "DO_RESET=n"
     )
-
+    echo %DO_RESET%
     if "%DO_RESET%" == "n" (
         exit /B
     )
