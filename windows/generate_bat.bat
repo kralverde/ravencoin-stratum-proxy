@@ -21,7 +21,7 @@ if exist "%CURRENT_DIRECTORY%\python_files\python.exe" (
     echo %HASH%
     if NOT "%HASH%" == "F8ED5E019D7BC6DBA1D7DFA5D59052B5241C37E8EAA5293133C898AC7ACEDB98" (
         echo warning: hash mismatch! exiting and removing the file.
-        del %CURRENT_DIRECTORY%\python.zip
+        del "%CURRENT_DIRECTORY%\python.zip"
         pause
         exit /B
     )
@@ -32,7 +32,7 @@ if exist "%CURRENT_DIRECTORY%\python_files\python.exe" (
     powershell -Command "Expand-Archive %CURRENT_DIRECTORY%\python.zip -DestinationPath %CURRENT_DIRECTORY%\python_files"
 
     echo removing archive...
-    del %CURRENT_DIRECTORY%\python.zip
+    del "%CURRENT_DIRECTORY%\python.zip"
 )
 pause
 exit /B
