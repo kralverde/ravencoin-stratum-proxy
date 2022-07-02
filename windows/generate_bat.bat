@@ -34,7 +34,7 @@ echo extracting python...
 powershell -Command "Expand-Archive %CURRENT_DIRECTORY%python.zip -DestinationPath %CURRENT_DIRECTORY%python_files"
 
 echo installing pip...
-%CURRENT_DIRECTORY%python_files\python.exe %CURRENT_DIRECTORY%get-pip.py
+%CURRENT_DIRECTORY%python_files\python.exe %CURRENT_DIRECTORY%get-pip.py --no-warn-script-location
 
 echo removing archives...
 del "%CURRENT_DIRECTORY%python.zip"
@@ -47,24 +47,26 @@ echo installing pre-built module...
 %CURRENT_DIRECTORY%python_files\python.exe -m pip install %CURRENT_DIRECTORY%python_modules\pysha3-1.0.3.dev1-cp39-cp39-win32.whl
 
 echo install pip modules...
-%CURRENT_DIRECTORY%python_files\python.exe -m pip install -r %CURRENT_DIRECTORY%requirements.txt
+%CURRENT_DIRECTORY%python_files\python.exe -m pip install -r %CURRENT_DIRECTORY%requirements.txt --no-warn-script-location
 
 :SKIP_DOWNLOADS
 
 set "FILE_LOCATION=%CURRENT_DIRECTORY%..\run.bat"
 
-if exist "%FILE_LOCATION%" (
-    echo ==========================================================
-    set /p "DO_RESET=run.bat already exists. Reset? y/n (Default n): "
-    if "%DO_RESET%" == "" (
-        set "DO_RESET=n"
-    )
-    echo %DO_RESET%
-    if "%DO_RESET%" == "n" (
-        exit /B
-    )
-    echo regenerating run.bat ...
+if exist "%FILE_LOCATION%" goto EXISTS
+goto CHECK_MAINNET
+
+:EXISTS
+echo ==========================================================
+set /p "DO_RESET=run.bat already exists, do you want to overwrite? y/n (Default n): "
+if "%DO_RESET%" == "" (
+    set "DO_RESET=n"
 )
+if "%DO_RESET%" == "n" (
+    exit /B
+)
+echo regenerating run.bat ...
+
 
 echo ==========================================================
 :CHECK_MAINNET
@@ -87,6 +89,7 @@ if "%IS_MAINNET_INPUT%" == "testnet" (
 )
 
 echo Unknown input: %IS_MAINNET_INPUT% options are: (mainnet/testnet)
+set "IS_MAINNET_INPUT="
 goto CHECK_MAINNET
 
 :POST_CHECK_MAINNET
@@ -108,6 +111,7 @@ if "%NODE_PORT%" == "" (
 set /a "TEST_PORT=%NODE_PORT%+0"
 if %TEST_PORT% LEQ 1024 (
     echo Not a valid port: %NODE_PORT%
+	set "NODE_PORT="
     goto POST_CHECK_IP
 )
 
@@ -148,6 +152,7 @@ if "%ALLOW_EXTERNAL_CONNECTIONS_INPUT%" == "n" (
 )
 
 echo Invalid option: %ALLOW_EXTERNAL_CONNECTIONS_INPUT%, please enter "y" or "n"
+set "ALLOW_EXTERNAL_CONNECTIONS_INPUT="
 goto POST_CHECK_PASSWORD
 
 :POST_CHECK_EXTERNAL
@@ -163,6 +168,7 @@ if "%CONVERTER_PORT%" == "" (
 set /a "TEST_PORT=%CONVERTER_PORT%+0"
 if %TEST_PORT% LEQ 1024 (
     echo Not a valid port: %CONVERTER_PORT%
+	set "CONVERTER_PORT="
     goto PRE_CHECK_PORT
 )
 
@@ -173,9 +179,11 @@ set "TESTNET_STRING_VALUE=false"
 if NOT defined IS_MAINNET set "TESTNET_STRING_VALUE=true"
 
 echo generating bat file...
-echo echo ==========================================================>%FILE_LOCATION%
-echo echo Connect to your stratum converter at stratum+tcp://localhost:%CONVERTER_PORT%>>%FILE_LOCATION%
+echo @echo off>%FILE_LOCATION%
+echo echo ==========================================================>>%FILE_LOCATION%
+echo echo Connect to your stratum converter at stratum+tcp://%NODE_IP%:%CONVERTER_PORT%>>%FILE_LOCATION%
 echo echo ==========================================================>>%FILE_LOCATION%
 echo %CURRENT_DIRECTORY%python_files\python.exe %CURRENT_DIRECTORY%..\stratum-converter.py %CONVERTER_PORT% %NODE_IP% %RPC_USERNAME% %RPC_PASSWORD% %NODE_PORT% %EXTERNAL_STRING_VALUE% %TESTNET_STRING_VALUE%>>%FILE_LOCATION%
-echo done... runnable bat can be found at %FILE_LOCATION%
+FOR %%A IN ("%~dp0.") DO SET FILE_LOCATION=%%~dpA
+echo done... runnable bat can be found at %FILE_LOCATION%run.bat
 pause
