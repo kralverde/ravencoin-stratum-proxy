@@ -9,7 +9,7 @@ If you are a windows user and are not familiar with python, a walk-through and a
 - [Usage](#usage)
 - [Help](#help)
 
-<a name="setup/">
+<a name="setup"/>
 
 ## Setup:
 
@@ -17,7 +17,7 @@ If you are a windows user and are not familiar with python, a walk-through and a
 2. Run `python3 -m pip install -r requirements.txt`
   - Note that the pysha3 module will need to be compiled so you need some kind of C compiler installed
 
-<a name="windows/">
+<a name="windows"/>
 
 #### For Windows:
 A bat file is avaliable to auto install python and dependencies and generate another bat file to run the stratum.
@@ -29,7 +29,7 @@ A bat file is avaliable to auto install python and dependencies and generate ano
 6. After `generate_bat.bat` completes with no errors, go back to the previous folder.
 7. Double-click `run.bat` to run the stratum converter.
 
-<a name="node/">
+<a name="node"/>
 
 ## Node Requirements:
 
@@ -48,7 +48,7 @@ note:
 
 Make sure you configure the rpcport on `stratum-converter.py` accordingly.
 
-<a name="usage/">
+<a name="usage"/>
 
 ## Usage:
 The stratum converter uses the following flags `python stratum-converter.py Port_for_miner Ip_of_node Rpc_username Rpc_password Rpc_port Allow_external_connections Is_testnet(optional)` 
@@ -72,7 +72,7 @@ Connect to it with your miner of choise:
 | :exclamation:   Errors | NBminer | :grey_question: |
 | :heavy_check_mark: Works | kawpowminer | kawpowminer -P stratum+tcp://YOUR_WALLET_ADDRESS.worker@PROXY_IP:54325 |
 
-<a name="help/">
+<a name="help"/>
 
 ## Help:
 @kralverde#0550 is avaliable on the community ravencoin server (https://discord.gg/jn6uhur)
