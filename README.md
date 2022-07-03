@@ -4,10 +4,10 @@ Allows you to mine directly to your own local wallet/node with any mining softwa
 If you are a windows user and are not familiar with python, a walk-through and auto installer is avaliable for a (hopefully) easy install. See [here](#windows)
 
 ## Table of Contents  
-[Setup](#setup)
-[Node Requirements](#node)
-[Usage](#usage)
-[Help](#help)
+- [Setup](#setup)
+- [Node Requirements](#node)
+- [Usage](#usage)
+- [Help](#help)
 
 <a name="setup/">
 
@@ -20,13 +20,14 @@ If you are a windows user and are not familiar with python, a walk-through and a
 <a name="windows/">
 
 #### For Windows:
-note:
 A bat file is avaliable to auto install python and dependencies and generate another bat file to run the stratum.
 1. Download this repo (https://github.com/kralverde/ravencoin-stratum-proxy/archive/refs/heads/master.zip)
 2. Unzip the downloaded file
 3. Open the unzipped folder
 4. Open the `windows` folder
 5. Double-click `generate_bat.bat`
+6. After `generate_bat.bat` completes with no errors, go back to the previous folder.
+7. Double-click `run.bat` to run the stratum converter.
 
 <a name="node/">
 
