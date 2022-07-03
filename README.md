@@ -1,18 +1,36 @@
 # ravencoin-stratum-proxy
 Allows you to mine directly to your own local wallet/node with any mining software that uses the stratum protocol.
 
-##### Table of Contents  
-[Headers](#headers)
+If you are a windows user and are not familiar with python, a walk-through and auto installer is avaliable for a (hopefully) easy install. See [here](#windows)
 
-<a name="headers"/>
+## Table of Contents  
+[Setup](#setup)
+[Node Requirements](#node)
+[Usage](#usage)
+[Help](#help)
+
+<a name="setup/">
+
 ## Setup:
 
-1. Download and install the latest version of [Python](https://www.python.org/downloads/)
-   - Run the executable and **Check** the `Add Python3 to PATH`! and press the `Install Now` option.
-   - press the `Disable path lenght limit` option.
+1. Requires python 3.8+
+2. Run `python3 -m pip install -r requirements.txt`
+  - Note that the pysha3 module will need to be compiled so you need some kind of C compiler installed
 
+<a name="windows/">
 
-## Node setup:
+#### For Windows:
+note:
+A bat file is avaliable to auto install python and dependencies and generate another bat file to run the stratum.
+1. Download this repo (https://github.com/kralverde/ravencoin-stratum-proxy/archive/refs/heads/master.zip)
+2. Unzip the downloaded file
+3. Open the unzipped folder
+4. Open the `windows` folder
+5. Double-click `generate_bat.bat`
+
+<a name="node/">
+
+## Node Requirements:
 
 Requires the following `raven.conf` options:
 ```
@@ -28,6 +46,8 @@ note:
 - Default Testnet rpcport = `18766`
 
 Make sure you configure the rpcport on `stratum-converter.py` accordingly.
+
+<a name="usage/">
 
 ## Usage:
 The stratum converter uses the following flags `python stratum-converter.py Port_for_miner Ip_of_node Rpc_username Rpc_password Rpc_port Allow_external_connections Is_testnet(optional)` 
@@ -51,6 +71,10 @@ Connect to it with your miner of choise:
 | :exclamation:   Errors | NBminer | :grey_question: |
 | :heavy_check_mark: Works | kawpowminer | kawpowminer -P stratum+tcp://YOUR_WALLET_ADDRESS.worker@PROXY_IP:54325 |
 
+<a name="help/">
+
+## Help:
+@kralverde#0550 is avaliable on the community ravencoin server (https://discord.gg/jn6uhur)
 
 © 2022 GitHub, Inc.
 Terms
