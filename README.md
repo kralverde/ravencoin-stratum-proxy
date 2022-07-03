@@ -1,7 +1,7 @@
 # ravencoin-stratum-proxy
 Allows you to mine directly to your own local wallet/node with any mining software that uses the stratum protocol.
 
-If you are a windows user and are not familiar with python, a walk-through and auto installer is avaliable for a (hopefully) easy install. See [here](#windows)
+If you are a windows user and are not familiar with python, a walk-through and auto installer is avaliable for a (hopefully) easy install. See [here](#windows).
 
 ## Table of Contents  
 - [Setup](#setup)
@@ -15,7 +15,7 @@ If you are a windows user and are not familiar with python, a walk-through and a
 
 1. Requires python 3.8+
 2. Run `python3 -m pip install -r requirements.txt`
-  - Note that the pysha3 module will need to be compiled so you need some kind of C compiler installed
+  - Note that the pysha3 module will need to be compiled so you need some kind of C compiler installed. Alternatively, a precompiled `.whl` is avaliable in `windows/python_modules`.
 
 <a name="windows"/>
 
