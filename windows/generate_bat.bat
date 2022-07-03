@@ -188,7 +188,7 @@ if NOT defined IS_MAINNET set "TESTNET_STRING_VALUE=true"
 echo generating bat file...
 echo @echo off>%FILE_LOCATION%
 echo echo ==========================================================>>%FILE_LOCATION%
-echo echo Connect to your stratum converter at stratum+tcp://localhost:%CONVERTER_PORT%>>%FILE_LOCATION%
+echo echo Connect to your stratum converter (with a miner on this computer) at stratum+tcp://localhost:%CONVERTER_PORT%>>%FILE_LOCATION%
 echo echo ==========================================================>>%FILE_LOCATION%
 echo %CURRENT_DIRECTORY%python_files\python.exe %CURRENT_DIRECTORY%..\stratum-converter.py %CONVERTER_PORT% %NODE_IP% %RPC_USERNAME% %RPC_PASSWORD% %NODE_PORT% %EXTERNAL_STRING_VALUE% %TESTNET_STRING_VALUE%>>%FILE_LOCATION%
 FOR %%A IN ("%~dp0.") DO SET FILE_LOCATION=%%~dpA
