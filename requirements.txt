@@ -295,7 +295,7 @@ certifi==2022.6.15 \
     --hash=sha256:84c85a9078b11105f04f3036a9482ae10e4621616db313fe045dd24743a0820d \
     --hash=sha256:fe86415d55e84719d75f8b69414f6438ac3547d2078ab91b67e779ef69378412
 
-# For windows, we should have this already installed so we don't want to get this
+# For the windows generator batch file, we should have this already installed so we don't want to get this
 pysha3==1.0.2 \
     --hash=sha256:fe988e73f2ce6d947220624f04d467faf05f1bbdbc64b0a201296bb3af92739e \
     --hash=sha256:0060a66be16665d90c432f55a0ba1f6480590cfb7d2ad389e688a399183474f0 \

@@ -21,13 +21,15 @@ If you are a windows user and are not familiar with python, a walk-through and a
 
 #### For Windows:
 A bat file is avaliable to auto install python and dependencies and generate another bat file to run the stratum.
-1. Download this repo (https://github.com/kralverde/ravencoin-stratum-proxy/archive/refs/heads/master.zip)
-2. Unzip the downloaded file
-3. Open the unzipped folder
-4. Open the `windows` folder
-5. Double-click `generate_bat.bat`
-6. After `generate_bat.bat` completes with no errors, go back to the previous folder.
-7. Double-click `run.bat` to run the stratum converter.
+1. Ensure your node is configured [as required](#node).
+2. (Re)start your node (the qt wallet works).
+3. Download this repo (https://github.com/kralverde/ravencoin-stratum-proxy/archive/refs/heads/master.zip)
+4. Unzip the downloaded file
+5. Open the unzipped folder
+6. Open the `windows` folder
+7. Double-click `generate_bat.bat`
+8. After `generate_bat.bat` completes with no errors, go back to the previous folder.
+9. Double-click `run.bat` to run the stratum converter.
 
 <a name="node"/>
 
@@ -40,6 +42,10 @@ rpcuser=my_username
 rpcpassword=my_password
 rpcallowip=127.0.0.1
 ```
+On *nix OS's this file is located at `~/.raven` by default. On windows, this file is located at `%appdata%\roaming\Raven`.
+
+You may need to create the `raven.conf` file and add those lines if it does not exist.
+
 For testnet you can add `testnet=1` to your `raven.conf`
 
 note:
