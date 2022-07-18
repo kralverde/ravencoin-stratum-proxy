@@ -3,6 +3,9 @@ Allows you to mine directly to your own local wallet/node with any mining softwa
 
 If you are a windows user and are not familiar with python, a walk-through and auto installer is avaliable for a (hopefully) easy install. See [here](#windows).
 
+*Important Note*
+Mining software will only send a share when it has found a block. No shares for long periods of time is normal behavior.
+
 ## Table of Contents  
 - [Setup](#setup)
 - [Node Requirements](#node)
