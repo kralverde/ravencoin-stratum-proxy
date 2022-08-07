@@ -7,6 +7,9 @@ If you are a windows user and are not familiar with python, a walk-through and a
 This is beta software and has only been tested on testnet.
 
 ## *Important Note 2*
+This is not pool software and is meant for solo-mining. All proceeds go to the address of the first miner that connects.
+
+## *Important Note 3*
 Mining software will only send a share when it has found a block. No shares for long periods of time is normal behavior.
 
 ## Table of Contents  
