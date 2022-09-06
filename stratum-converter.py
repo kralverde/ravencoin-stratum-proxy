@@ -175,7 +175,7 @@ class StratumSession(RPCSession):
 
         if job_id != hex(state.job_counter)[2:]:
             print('An old job was submitted, trying old states')
-            old_state = lookup_old_state(job_id)
+            old_state = lookup_old_state(self._old_states, job_id)
             if old_state is not None:
                 state = old_state
             else:
