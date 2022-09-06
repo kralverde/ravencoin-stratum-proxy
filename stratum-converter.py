@@ -60,6 +60,8 @@ class TemplateState:
     # These refer to the block that we are working on
     height: int = -1
 
+    timestamp: int = -1
+
     # The address of the miner that first connects is
     # the one that is used
     address: Optional[str] = None
@@ -86,6 +88,7 @@ class TemplateState:
     awaiting_update = False
 
     job_counter = 0
+    bits_counter = 0
 
     def __repr__(self):
         return f'Height:\t\t{self.height}\nAddress:\t\t{self.address}\nBits:\t\t{self.bits}\nTarget:\t\t{self.target}\nHeader Hash:\t\t{self.headerHash}\nVersion:\t\t{self.version}\nPrevious Header:\t\t{self.prevHash.hex()}\nExtra Txs:\t\t{self.externalTxs}\nSeed Hash:\t\t{self.seedHash.hex()}\nHeader:\t\t{self.header.hex()}\nCoinbase:\t\t{self.coinbase_tx.hex()}\nCoinbase txid:\t\t{self.coinbase_txid.hex()}\nNew sessions:\t\t{self.new_sessions}\nSessions:\t\t{self.all_sessions}'
@@ -129,10 +132,11 @@ class StratumSession(RPCSession):
         return await super().connection_lost()
 
     async def handle_subscribe(self, *args):
-        # Dummy data
         if self not in self._state.all_sessions:
             self._state.new_sessions.add(self)
-        return ['00'*4, 'c0']
+        self._state.bits_counter += 1
+        # Dummy data | insure unique work for unique miners
+        return ['00', self._state.bits_counter.to_bytes(3, 'big').hex()]
     
     async def handle_authorize(self, username: str, password: str):
         # The first address that connects is the one that is used
@@ -316,13 +320,17 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     # Done with seed hash #
                     state.height = height_int
 
-                # The following occurs during both new blocks & new txs
-                if new_block or new_witness:
+                # The following occurs during both new blocks & new txs & nothing happens for 10s (magic number)
+                if new_block or new_witness or state.timestamp + 10 < ts:
                     # Generate coinbase #
 
                     bip34_height = state.height.to_bytes(4, 'little')
                     while bip34_height[-1] == 0:
                         bip34_height = bip34_height[:-1]
+
+                    # Note that there is a max allowed length of arbitrary data.
+                    # I forget what it is (TODO lol) but note that this string is close
+                    # to the max.
                     arbitrary_data = b'with a little help from http://github.com/kralverde/ravencoin-stratum-proxy'
                     coinbase_script = op_push(len(bip34_height)) + bip34_height + b'\0' + op_push(len(arbitrary_data)) + arbitrary_data
                     coinbase_txin = bytes(32) + b'\xff'*4 + var_int(len(coinbase_script)) + coinbase_script + b'\xff'*4
@@ -373,6 +381,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                             state.height.to_bytes(4, 'little')
 
                     state.headerHash = dsha256(state.header)[::-1].hex()
+                    state.timestamp = ts
 
                     state.job_counter += 1
 
