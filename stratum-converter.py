@@ -1,18 +1,18 @@
 import asyncio
+from copy import deepcopy
 import json
 import time
 import sys
 import urllib.parse
 
 import base58
-from requests import head
 import sha3
 
 from aiohttp import ClientSession
 from aiorpcx import RPCSession, JSONRPCConnection, JSONRPCAutoDetect, Request, serve_rs, handler_invocation, RPCError, TaskGroup
 from functools import partial
 from hashlib import sha256
-from typing import Callable, Coroutine, Set, List, Optional
+from typing import Set, List, Optional, Dict, Tuple
 
 
 KAWPOW_EPOCH_LENGTH = 7500
@@ -96,13 +96,29 @@ class TemplateState:
     def build_block(self, nonce: str, mixHash: str) -> str:
         return self.header.hex() + nonce + mixHash + var_int(len(self.externalTxs) + 1).hex() + self.coinbase_tx.hex() + ''.join(self.externalTxs)
 
+
+def add_old_state_to_queue(queue: List[List[str] | Dict[str, TemplateState]], state: TemplateState, drop_after: int):
+    id = hex(state.job_counter)[2:]
+    if id in queue[1]:
+        return
+    queue[0].append(id)
+    queue[1][id] = state
+    while len(queue[0]) > drop_after:
+        del queue[1][queue[0].pop(0)]
+
+def lookup_old_state(queue: List[List[int] | Dict[int, TemplateState]], id: str) -> Optional[TemplateState]:
+    return queue[1].get(id, None)
+
+
 class StratumSession(RPCSession):
 
-    def __init__(self, state: TemplateState, testnet: bool, node_url: str, node_username: str, node_password: str, node_port: int, transport):
+    def __init__(self, state: TemplateState, old_states, testnet: bool, node_url: str, node_username: str, node_password: str, node_port: int, transport):
         connection = JSONRPCConnection(JSONRPCAutoDetect)
         super().__init__(transport, connection=connection)
         self._state = state
         self._testnet = testnet
+
+        self._old_states = old_states
 
         self._node_url = node_url
         self._node_username = node_username
@@ -135,7 +151,7 @@ class StratumSession(RPCSession):
         if self not in self._state.all_sessions:
             self._state.new_sessions.add(self)
         self._state.bits_counter += 1
-        # Dummy data | insure unique work for unique miners
+        # Dummy data, ensure unique work for unique miners
         return ['00', self._state.bits_counter.to_bytes(3, 'big').hex()]
     
     async def handle_authorize(self, username: str, password: str):
@@ -155,10 +171,15 @@ class StratumSession(RPCSession):
         print(header_hex)
 
         # We can still propogate old jobs; there may be a chance that they get used
+        state = self._state
 
-        #if job_id != hex(state.job_counter)[2:]:
-        #    print('An old job was submitted')
-        #    raise RPCError(20, 'Miner submitted a job that was not the current request')
+        if job_id != hex(state.job_counter)[2:]:
+            print('An old job was submitted, trying old states')
+            old_state = lookup_old_state(job_id)
+            if old_state is not None:
+                state = old_state
+            else:
+                raise RPCError(20, 'Miner submitted an old job that we did not have')
 
         if nonce_hex[:2].lower() == '0x':
             nonce_hex = nonce_hex[2:]
@@ -167,7 +188,7 @@ class StratumSession(RPCSession):
             mixhash_hex = mixhash_hex[2:]
         mixhash_hex = bytes.fromhex(mixhash_hex)[::-1].hex()
         
-        block_hex = self._state.build_block(nonce_hex, mixhash_hex)
+        block_hex = state.build_block(nonce_hex, mixhash_hex)
 
         data = {
             'jsonrpc':'2.0',
@@ -213,7 +234,7 @@ class StratumSession(RPCSession):
             'params':[]
         }    
         async with ClientSession() as session:    
-            async with session.post(f'http://{node_username}:{node_password}@{node_url}:{node_port}', data=json.dumps(data)) as resp:
+            async with session.post(f'http://{self._node_username}:{self._node_password}@{self._node_url}:{self._node_port}', data=json.dumps(data)) as resp:
                 try:
                     json_obj = await resp.json()
                     if json_obj.get('error', None):
@@ -243,7 +264,7 @@ class StratumSession(RPCSession):
             print('Mining software has yet to send data')
         return True
 
-async def stateUpdater(state: TemplateState, node_url: str, node_username: str, node_password: str, node_port: int):
+async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: str, node_username: str, node_password: str, node_port: int):
     if not state.address:
         return
     data = {
@@ -279,9 +300,12 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
 
                 new_block = False
 
+                original_state = None
+
                 # The following will only change when there is a new block.
                 # Force update is unnecessary
                 if state.height == -1 or state.height != height_int:
+                    original_state = deepcopy(state)
                     # New block, update everything
                     print('New block, update state')
                     new_block = True
@@ -320,9 +344,12 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     # Done with seed hash #
                     state.height = height_int
 
-                # The following occurs during both new blocks & new txs & nothing happens for 10s (magic number)
-                if new_block or new_witness or state.timestamp + 10 < ts:
+                # The following occurs during both new blocks & new txs & nothing happens for 60s (magic number)
+                if new_block or new_witness or state.timestamp + 60 < ts:
                     # Generate coinbase #
+
+                    if original_state is None:
+                        original_state = deepcopy(state)
 
                     bip34_height = state.height.to_bytes(4, 'little')
                     while bip34_height[-1] == 0:
@@ -384,6 +411,7 @@ async def stateUpdater(state: TemplateState, node_url: str, node_username: str, 
                     state.timestamp = ts
 
                     state.job_counter += 1
+                    add_old_state_to_queue(old_states, original_state, drop_after)
 
                     for session in state.all_sessions:
                         await session.send_notification('mining.set_target', (target_hex,))
@@ -423,17 +451,21 @@ if __name__ == '__main__':
     testnet = False
     if len(sys.argv) > 7:
         testnet = check_bool(sys.argv[7])
-
+    
     print('Starting stratum converter')
 
     # The shared state
     state = TemplateState()
-        
-    session_generator = partial(StratumSession, state, testnet, node_url, node_username, node_password, node_port)
+    # Stores old state info
+    historical_states = [list(), dict()]
+    # only save 10 historic states (magic number)
+    store = 10
+    
+    session_generator = partial(StratumSession, state, historical_states, testnet, node_url, node_username, node_password, node_port)
 
     async def updateState():
         while True:
-            await stateUpdater(state, node_url, node_username, node_password, node_port)
+            await stateUpdater(state, historical_states, store, node_url, node_username, node_password, node_port)
             # Check for new blocks / new transactions every 0.1 seconds
             # stateUpdater should fast fail if no differences
             await asyncio.sleep(0.1)
