@@ -2,6 +2,7 @@ import asyncio
 import json
 import time
 import sys
+import urllib.parse
 
 import base58
 from requests import head
@@ -406,8 +407,8 @@ if __name__ == '__main__':
 
     proxy_port = int(sys.argv[1])
     node_url = str(sys.argv[2])
-    node_username = str(sys.argv[3])
-    node_password = str(sys.argv[4])
+    node_username = urllib.parse.quote(str(sys.argv[3]), safe='')
+    node_password = urllib.parse.quote(str(sys.argv[4]), safe='')
     node_port = int(sys.argv[5])
     should_listen_externaly = check_bool(sys.argv[6])
     testnet = False
