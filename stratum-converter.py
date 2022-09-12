@@ -252,16 +252,25 @@ class StratumSession(RPCSession):
                     exit(1)
         
         hashrate = int(hashrate, 16)
-        print(f'Client ID: {clientid}')
-        print(f'Miner Hashrate: {round(hashrate / 1000000, 2)}Mh/s')
-        print(f'Network Hashrate: {round(networkhashps_int / 1000000, 2)}Mh/s')
-        if hashrate != 0:
-            TTF = networkhashps_int / hashrate
-            msg = f'Time to find: {round(TTF, 2)} minutes'
-            print(msg)
-            await self.send_notification('client.show_message', (msg,))
-        else:
-            print('Mining software has yet to send data')
+        
+        hashratedict = {
+            clientid: hashrate
+        }
+        thisdict.update({clientid: hashrate})
+        
+        for x, y in thisdict.items():
+            print(x, y)
+        
+        #print(f'Client ID: {clientid}')
+        #print(f'Miner Hashrate: {round(hashrate / 1000000, 2)}Mh/s')
+        #print(f'Network Hashrate: {round(networkhashps_int / 1000000000000, 2)}Th/s')
+        #if hashrate != 0:
+        #    TTF = networkhashps_int / hashrate
+        #    msg = f'Time to find: {round(TTF, 2)} minutes'
+        #    print(msg)
+        #    await self.send_notification('client.show_message', (msg,))
+        #else:
+        #    print('Mining software has yet to send data')
         return True
 
 async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: str, node_username: str, node_password: str, node_port: int):
