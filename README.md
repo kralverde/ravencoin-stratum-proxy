@@ -4,7 +4,7 @@ Allows you to mine directly to your own local wallet/node with any mining softwa
 If you are a windows user and are not familiar with python, a walk-through and auto installer is avaliable for a (hopefully) easy install. See [here](#windows).
 
 ## *Important Note*
-This is beta software and has only been tested on testnet.
+This is beta software, but has been confirmed to work on mainet.
 
 ## *Important Note 2*
 This is not pool software and is meant for solo-mining. All proceeds go to the address of the first miner that connects.
@@ -82,7 +82,7 @@ Connect to it with your miner of choise:
 | status | miner | example |
 | - | - | - |
 | :heavy_check_mark: Works | T-rex | t-rex -a kawpow -o stratum+tcp://PROXY_IP:54325 -u YOUR_WALLET_ADDRESS -p x |
-| :heavy_check_mark: Works | TeamRedMiner | teamredminer -o stratum+tcp://PROXY_IP:54325 -u YOUR_WALLET_ADDRESS -p x |
+| :heavy_check_mark: Works | TeamRedMiner | teamredminer -o stratum+tcp://PROXY_IP:54325 -u YOUR_WALLET_ADDRESS -p x --eth_hash_report=on |
 | :heavy_check_mark: Works | Gminer | miner --algo kawpow --server stratum+tcp://PROXY_IP:54325 --user YOUR_WALLET_ADDRESS --pass x |
 | :exclamation:   Errors | NBminer | :grey_question: |
 | :heavy_check_mark: Works | kawpowminer | kawpowminer -P stratum+tcp://YOUR_WALLET_ADDRESS.worker@PROXY_IP:54325 |
