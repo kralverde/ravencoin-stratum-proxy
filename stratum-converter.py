@@ -12,7 +12,7 @@ from aiohttp import ClientSession
 from aiorpcx import RPCSession, JSONRPCConnection, JSONRPCAutoDetect, Request, serve_rs, handler_invocation, RPCError, TaskGroup
 from functools import partial
 from hashlib import sha256
-from typing import Set, List, Optional, Dict, Tuple
+from typing import Set, List, Optional
 
 
 KAWPOW_EPOCH_LENGTH = 7500
@@ -97,7 +97,7 @@ class TemplateState:
         return self.header.hex() + nonce + mixHash + var_int(len(self.externalTxs) + 1).hex() + self.coinbase_tx.hex() + ''.join(self.externalTxs)
 
 
-def add_old_state_to_queue(queue: List[List[str] | Dict[str, TemplateState]], state: TemplateState, drop_after: int):
+def add_old_state_to_queue(queue, state, drop_after: int):
     id = hex(state.job_counter)[2:]
     if id in queue[1]:
         return
@@ -106,7 +106,7 @@ def add_old_state_to_queue(queue: List[List[str] | Dict[str, TemplateState]], st
     while len(queue[0]) > drop_after:
         del queue[1][queue[0].pop(0)]
 
-def lookup_old_state(queue: List[List[int] | Dict[int, TemplateState]], id: str) -> Optional[TemplateState]:
+def lookup_old_state(queue, id: str) -> Optional[TemplateState]:
     return queue[1].get(id, None)
 
 
@@ -458,9 +458,9 @@ if __name__ == '__main__':
     state = TemplateState()
     # Stores old state info
     historical_states = [list(), dict()]
-    # only save 10 historic states (magic number)
-    store = 10
-    
+    # only save 20 historic states (magic number)
+    store = 20
+
     session_generator = partial(StratumSession, state, historical_states, testnet, node_url, node_username, node_password, node_port)
 
     async def updateState():
