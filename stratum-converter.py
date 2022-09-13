@@ -16,6 +16,7 @@ from typing import Set, List, Optional
 
 
 KAWPOW_EPOCH_LENGTH = 7500
+hashratedict = {}
 
 def var_int(i: int) -> bytes:
     # https://en.bitcoin.it/wiki/Protocol_specification#Variable_length_integer
@@ -224,8 +225,6 @@ class StratumSession(RPCSession):
         await self.send_notification('client.show_message', (msg,))
 
         return True
-  
-    hashratedict = {}
     
     async def handle_eth_submitHashrate(self, hashrate: str, clientid: str):
     # The clienid is a random hex string
