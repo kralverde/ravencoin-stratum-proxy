@@ -145,11 +145,8 @@ class StratumSession(RPCSession):
         return await handler_invocation(handler, request)()
 
     async def connection_lost(self):
-        print(self)
         self._state.new_sessions.discard(self)
-        print(self)
         self._state.all_sessions.discard(self)
-        print(self)
         return await super().connection_lost()
 
     async def handle_subscribe(self, *args):
