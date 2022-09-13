@@ -2,6 +2,7 @@ import asyncio
 from copy import deepcopy
 import json
 import time
+from expiring_dict import ExpiringDict
 import sys
 import urllib.parse
 
@@ -16,7 +17,7 @@ from typing import Set, List, Optional
 
 
 KAWPOW_EPOCH_LENGTH = 7500
-hashratedict = {}
+hashratedict = ExpiringDict(120)
 
 def var_int(i: int) -> bytes:
     # https://en.bitcoin.it/wiki/Protocol_specification#Variable_length_integer
@@ -144,8 +145,11 @@ class StratumSession(RPCSession):
         return await handler_invocation(handler, request)()
 
     async def connection_lost(self):
+        print(self)
         self._state.new_sessions.discard(self)
+        print(self)
         self._state.all_sessions.discard(self)
+        print(self)
         return await super().connection_lost()
 
     async def handle_subscribe(self, *args):
@@ -260,18 +264,18 @@ class StratumSession(RPCSession):
         
         for x, y in hashratedict.items():
             totalClientHashrate = totalClientHashrate + y
-            print(f'Client ID: {x}')
-            print(f'Miner Hashrate: {round(y / 1000000, 2)}Mh/s')
-            print(x, y)
+            print(f'Reported Hashrate: {round(y / 1000000, 2)}Mh/s for Client ID: {x}')
+        
+        if testnet == True:
+            print(f'Total Reported Hashrate: {round(totalClientHashrate / 1000000, 2)}Mh/s')
+            print(f'Network Hashrate: {round(networkhashps_int / 1000000, 2)}Mh/s')
+        else:
+            print(f'Total Reported Hashrate: {round(totalClientHashrate / 1000000, 2)}Mh/s')
+            print(f'Network Hashrate: {round(networkhashps_int / 1000000000000, 2)}Th/s')
             
-        print(f'Total Miner Hashrate: {round(totalClientHashrate / 1000000, 2)}Mh/s')
-        print(f'Network Hashrate: {round(networkhashps_int / 1000000000000, 2)}Th/s')
         if totalClientHashrate != 0:
             TTF = difficulty_int * 2**32 / totalClientHashrate / 86400
-            TTF2 = networkhashps_int / totalClientHashrate / 1440
-            msg = f'Time to find: {round(TTF, 2)} days'
-            print(msg)
-            msg = f'Time to find2: {round(TTF2, 2)} days'
+            msg = f'Estimated time to find: {round(TTF, 2)} days'
             print(msg)
             await self.send_notification('client.show_message', (msg,))
         else:
