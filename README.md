@@ -4,7 +4,7 @@ Allows you to mine directly to your own local wallet/node with any mining softwa
 If you are a windows user and are not familiar with python, a walk-through and auto installer is avaliable for a (hopefully) easy install. See [here](#windows).
 
 ## *Important Note*
-This is beta software but has been confirmed to work on mainnet. (First known coinbase thanks to @pdath: https://rvn.cryptoscope.io/api/getrawtransaction/?txid=abf95dd29ac6732b5ff068bbc1063ef734268a2f04459f3be8ce2f5ea2d1e529&decode=1 can check by putting the vin0 coinbase into a hex->ascii converter).
+This is BETA software mainly tested on test-net, but has been confirmed to work on mainnet. (First known coinbase thanks to @pdath: https://rvn.cryptoscope.io/api/getrawtransaction/?txid=abf95dd29ac6732b5ff068bbc1063ef734268a2f04459f3be8ce2f5ea2d1e529&decode=1 can check by putting the vin0 coinbase into a hex->ascii converter).
 
 ## *Important Note 2*
 This is not pool software and is meant for solo-mining. All proceeds go to the address of the first miner that connects.
