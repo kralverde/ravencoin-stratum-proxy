@@ -153,8 +153,8 @@ class StratumSession(RPCSession):
         if self not in self._state.all_sessions:
             self._state.new_sessions.add(self)
         self._state.bits_counter += 1
-        # Dummy data, ensure unique work for unique miners
-        return ['00', self._state.bits_counter.to_bytes(3, 'big').hex()]
+        # We dont support resuming sessions, ensure unique work for unique miners
+        return [None, self._state.bits_counter.to_bytes(2, 'big').hex()]
     
     async def handle_authorize(self, username: str, password: str):
         # The first address that connects is the one that is used
