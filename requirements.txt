@@ -294,7 +294,10 @@ urllib3==1.26.9 \
 certifi==2022.6.15 \
     --hash=sha256:84c85a9078b11105f04f3036a9482ae10e4621616db313fe045dd24743a0820d \
     --hash=sha256:fe86415d55e84719d75f8b69414f6438ac3547d2078ab91b67e779ef69378412
-expiring-dict==1.1.0
+expiring-dict==1.1.0 \
+    --hash=sha256:586f6c5c0e5f111d5237f3fffcdefcfa813fb1e4340f9e3ef819bc70d3cc36cb
+sortedcontainers==2.4.0 \
+    --hash=sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0
 
 # For the windows generator batch file, we should have this already installed so we don't want to get this
 pysha3==1.0.2 \
