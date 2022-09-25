@@ -258,18 +258,19 @@ class StratumSession(RPCSession):
         hashratedict.update({clientid: hashrate})
         
         totalClientHashrate = 0
-        
+        print(f'--------------')
         for x, y in hashratedict.items():
             totalClientHashrate = totalClientHashrate + y
             print(f'Reported Hashrate: {round(y / 1000000, 2)}Mh/s for Client ID: {x}')
-        
+        print(f'-------')
+        print(f'Total Reported Hashrate: {round(totalClientHashrate / 1000000, 2)}Mh/s')
         if testnet == True:
-            print(f'Total Reported Hashrate: {round(totalClientHashrate / 1000000, 2)}Mh/s')
             print(f'Network Hashrate: {round(networkhashps_int / 1000000, 2)}Mh/s')
         else:
-            print(f'Total Reported Hashrate: {round(totalClientHashrate / 1000000, 2)}Mh/s')
             print(f'Network Hashrate: {round(networkhashps_int / 1000000000000, 2)}Th/s')
-            
+        
+        print(f'--------------')
+        
         if totalClientHashrate != 0:
             TTF = difficulty_int * 2**32 / totalClientHashrate / 86400
             msg = f'Estimated time to find: {round(TTF, 2)} days'
