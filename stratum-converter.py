@@ -17,7 +17,7 @@ from typing import Set, List, Optional
 
 
 KAWPOW_EPOCH_LENGTH = 7500
-hashratedict = ExpiringDict(120)
+hashratedict = ExpiringDict(120) #Seconds
 
 def var_int(i: int) -> bytes:
     # https://en.bitcoin.it/wiki/Protocol_specification#Variable_length_integer
@@ -272,8 +272,12 @@ class StratumSession(RPCSession):
         print(f'--------------')
         
         if totalClientHashrate != 0:
-            TTF = difficulty_int * 2**32 / totalClientHashrate / 86400
-            msg = f'Estimated time to find: {round(TTF, 2)} days'
+            if testnet == True:
+                TTF = difficulty_int * 2**32 / totalClientHashrate
+                msg = f'Estimated time to find: {round(TTF)} seconds'
+            else:
+                TTF = difficulty_int * 2**32 / totalClientHashrate / 86400
+                msg = f'Estimated time to find: {round(TTF, 2)} days'
             print(msg)
             await self.send_notification('client.show_message', (msg,))
         else:
