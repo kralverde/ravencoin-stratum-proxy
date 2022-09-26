@@ -8,7 +8,6 @@ if NOT "%CURRENT_DIRECTORY:~-33%" == "\ravencoin-stratum-proxy\windows\" (
         exit /B
     )
 )
-
 echo checking for python...
 
 if exist "%CURRENT_DIRECTORY%python_files\python.exe" (
@@ -18,9 +17,9 @@ if exist "%CURRENT_DIRECTORY%python_files\python.exe" (
 )
 
 echo downloading python...
-powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile %CURRENT_DIRECTORY%python.zip"
+powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-win32.zip -OutFile '%CURRENT_DIRECTORY%python.zip'"
 
-FOR /F "tokens=* USEBACKQ" %%F IN (`powershell -Command "Get-FileHash %CURRENT_DIRECTORY%python.zip -Algorithm SHA256 | Select-Object -ExpandProperty Hash"`) DO (
+FOR /F "tokens=* USEBACKQ" %%F IN (`powershell -Command "Get-FileHash '%CURRENT_DIRECTORY%python.zip' -Algorithm SHA256 | Select-Object -ExpandProperty Hash"`) DO (
     set HASH=%%F
 )
 echo downloaded python hash: %HASH%
@@ -30,8 +29,9 @@ if NOT "%HASH%" == "F8ED5E019D7BC6DBA1D7DFA5D59052B5241C37E8EAA5293133C898AC7ACE
     pause
     exit /B
 )
+
 echo downloading pip installer
-powershell -Command "Invoke-WebRequest https://bootstrap.pypa.io/get-pip.py -OutFile %CURRENT_DIRECTORY%get-pip.py"
+powershell -Command "Invoke-WebRequest https://bootstrap.pypa.io/get-pip.py -OutFile '%CURRENT_DIRECTORY%get-pip.py'"
 
 if NOT exist "%CURRENT_DIRECTORY%get-pip.py" (
     echo failed to download pip installer.
@@ -41,10 +41,11 @@ if NOT exist "%CURRENT_DIRECTORY%get-pip.py" (
 )
 
 echo extracting python...
-powershell -Command "Expand-Archive %CURRENT_DIRECTORY%python.zip -DestinationPath %CURRENT_DIRECTORY%python_files"
+powershell -Command "Expand-Archive '%CURRENT_DIRECTORY%python.zip' -DestinationPath '%CURRENT_DIRECTORY%python_files'"
 
 echo installing pip...
-%CURRENT_DIRECTORY%python_files\python.exe %CURRENT_DIRECTORY%get-pip.py --no-warn-script-location
+cd %CURRENT_DIRECTORY%python_files
+python.exe "%CURRENT_DIRECTORY%get-pip.py" --no-warn-script-location
 
 echo removing archives...
 del "%CURRENT_DIRECTORY%python.zip"
@@ -54,10 +55,11 @@ echo patching python...
 echo Lib\site-packages>> "%CURRENT_DIRECTORY%python_files\python39._pth"
 
 echo installing pre-built module...
-%CURRENT_DIRECTORY%python_files\python.exe -m pip install %CURRENT_DIRECTORY%python_modules\pysha3-1.0.3.dev1-cp39-cp39-win32.whl
+python.exe -m pip install "%CURRENT_DIRECTORY%python_modules\pysha3-1.0.3.dev1-cp39-cp39-win32.whl"
 
 echo install pip modules...
-%CURRENT_DIRECTORY%python_files\python.exe -m pip install -r %CURRENT_DIRECTORY%requirements.txt --no-warn-script-location
+python.exe -m pip install -r "%CURRENT_DIRECTORY%requirements.txt" --no-warn-script-location"
+cd %CURRENT_DIRECTORY%
 
 :SKIP_DOWNLOADS
 
@@ -189,11 +191,11 @@ set "TESTNET_STRING_VALUE=false"
 if NOT defined IS_MAINNET set "TESTNET_STRING_VALUE=true"
 
 echo generating bat file...
-echo @echo off>%FILE_LOCATION%
-echo echo ==========================================================>>%FILE_LOCATION%
-echo echo Connect to your stratum converter (with a miner on this computer) at stratum+tcp://localhost:%CONVERTER_PORT%>>%FILE_LOCATION%
-echo echo ==========================================================>>%FILE_LOCATION%
-echo %CURRENT_DIRECTORY%python_files\python.exe %CURRENT_DIRECTORY%..\stratum-converter.py %CONVERTER_PORT% %NODE_IP% %RPC_USERNAME% %RPC_PASSWORD% %NODE_PORT% %EXTERNAL_STRING_VALUE% %TESTNET_STRING_VALUE%>>%FILE_LOCATION%
+echo @echo off>"%FILE_LOCATION%"
+echo echo ==========================================================>>"%FILE_LOCATION%"
+echo echo Connect to your stratum converter (with a miner on this computer) at stratum+tcp://localhost:%CONVERTER_PORT%>>"%FILE_LOCATION%"
+echo echo ==========================================================>>"%FILE_LOCATION%"
+echo "%CURRENT_DIRECTORY%python_files\python.exe" "%CURRENT_DIRECTORY%..\stratum-converter.py" %CONVERTER_PORT% %NODE_IP% %RPC_USERNAME% %RPC_PASSWORD% %NODE_PORT% %EXTERNAL_STRING_VALUE% %TESTNET_STRING_VALUE%>>"%FILE_LOCATION%"
 FOR %%A IN ("%~dp0.") DO SET FILE_LOCATION=%%~dpA
 echo done... runnable bat can be found at %FILE_LOCATION%run.bat
 pause
