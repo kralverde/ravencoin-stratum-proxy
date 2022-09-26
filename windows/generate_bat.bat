@@ -8,6 +8,7 @@ if NOT "%CURRENT_DIRECTORY:~-33%" == "\ravencoin-stratum-proxy\windows\" (
         exit /B
     )
 )
+
 echo checking for python...
 
 if exist "%CURRENT_DIRECTORY%python_files\python.exe" (
@@ -29,7 +30,6 @@ if NOT "%HASH%" == "F8ED5E019D7BC6DBA1D7DFA5D59052B5241C37E8EAA5293133C898AC7ACE
     pause
     exit /B
 )
-
 echo downloading pip installer
 powershell -Command "Invoke-WebRequest https://bootstrap.pypa.io/get-pip.py -OutFile '%CURRENT_DIRECTORY%get-pip.py'"
 
@@ -44,8 +44,7 @@ echo extracting python...
 powershell -Command "Expand-Archive '%CURRENT_DIRECTORY%python.zip' -DestinationPath '%CURRENT_DIRECTORY%python_files'"
 
 echo installing pip...
-cd %CURRENT_DIRECTORY%python_files
-python.exe "%CURRENT_DIRECTORY%get-pip.py" --no-warn-script-location
+"%CURRENT_DIRECTORY%python_files"\python.exe "%CURRENT_DIRECTORY%get-pip.py" --no-warn-script-location
 
 echo removing archives...
 del "%CURRENT_DIRECTORY%python.zip"
@@ -55,11 +54,10 @@ echo patching python...
 echo Lib\site-packages>> "%CURRENT_DIRECTORY%python_files\python39._pth"
 
 echo installing pre-built module...
-python.exe -m pip install "%CURRENT_DIRECTORY%python_modules\pysha3-1.0.3.dev1-cp39-cp39-win32.whl"
+"%CURRENT_DIRECTORY%python_files"\python.exe -m pip install "%CURRENT_DIRECTORY%python_modules\pysha3-1.0.3.dev1-cp39-cp39-win32.whl"
 
 echo install pip modules...
-python.exe -m pip install -r "%CURRENT_DIRECTORY%requirements.txt" --no-warn-script-location"
-cd %CURRENT_DIRECTORY%
+"%CURRENT_DIRECTORY%python_files"\python.exe -m pip install -r "%CURRENT_DIRECTORY%requirements.txt" --no-warn-script-location
 
 :SKIP_DOWNLOADS
 
