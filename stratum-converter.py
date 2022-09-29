@@ -16,6 +16,7 @@ from typing import Set, List, Optional
 
 
 KAWPOW_EPOCH_LENGTH = 7500
+hashratedict = {}
 
 def var_int(i: int) -> bytes:
     # https://en.bitcoin.it/wiki/Protocol_specification#Variable_length_integer
@@ -143,6 +144,9 @@ class StratumSession(RPCSession):
         return await handler_invocation(handler, request)()
 
     async def connection_lost(self):
+        worker = str(self).strip('>').split()[3]
+        print(f'Connection lost: {worker}')
+        del hashratedict[worker]
         self._state.new_sessions.discard(self)
         self._state.all_sessions.discard(self)
         return await super().connection_lost()
@@ -244,7 +248,6 @@ class StratumSession(RPCSession):
                     difficulty_int: int = json_obj['result']['difficulty']
                     networkhashps_int: int = json_obj['result']['networkhashps']
                 
-                
                 except Exception as e:
                     print('Failed to query mininginfo from node')
                     import traceback
@@ -252,12 +255,29 @@ class StratumSession(RPCSession):
                     exit(1)
         
         hashrate = int(hashrate, 16)
-        print(f'Client ID: {clientid}')
-        print(f'Miner Hashrate: {round(hashrate / 1000000, 2)}Mh/s')
-        print(f'Network Hashrate: {round(networkhashps_int / 1000000, 2)}Mh/s')
-        if hashrate != 0:
-            TTF = networkhashps_int / hashrate
-            msg = f'Time to find: {round(TTF, 2)} minutes'
+        worker = str(self).strip('>').split()[3]
+        hashratedict.update({worker: hashrate})
+        totalHashrate = 0
+        
+        print(f'----------------------------')
+        #print(self._state.worker)
+        for x, y in hashratedict.items():
+            totalHashrate += y
+            print(f'Reported Hashrate: {round(y / 1000000, 2)}Mh/s for ID: {x}')
+        print(f'----------------------------')
+        print(f'Total Reported Hashrate: {round(totalHashrate / 1000000, 2)}Mh/s')
+        
+        if testnet == True:
+            print(f'Network Hashrate: {round(networkhashps_int / 1000000, 2)}Mh/s')
+        else:
+            print(f'Network Hashrate: {round(networkhashps_int / 1000000000000, 2)}Th/s')
+        
+        if totalHashrate != 0:
+            TTF = difficulty_int * 2**32 / totalHashrate
+            if testnet == True:
+                msg = f'Estimated time to find: {round(TTF)} seconds'
+            else:
+                msg = f'Estimated time to find: {round(TTF / 86400, 2)} days'
             print(msg)
             await self.send_notification('client.show_message', (msg,))
         else:
