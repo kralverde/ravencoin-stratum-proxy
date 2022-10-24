@@ -92,10 +92,3 @@ Connect to it with your miner of choise:
 ## Help:
 @kralverde#0550 is avaliable on the community ravencoin server (https://discord.gg/jn6uhur)
 
-© 2022 GitHub, Inc.
-Terms
-Privacy
-
-
-
-
