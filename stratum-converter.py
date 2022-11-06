@@ -65,7 +65,7 @@ class TemplateState:
 
     # The address of the miner that first connects is
     # the one that is used
-    address: Optional[str] = None
+    pub_h160: Optional[bytes] = None
 
     # We store the following in hex because they are
     # Used directly in API to the miner
@@ -92,7 +92,7 @@ class TemplateState:
     bits_counter = 0
 
     def __repr__(self):
-        return f'Height:\t\t{self.height}\nAddress:\t\t{self.address}\nBits:\t\t{self.bits}\nTarget:\t\t{self.target}\nHeader Hash:\t\t{self.headerHash}\nVersion:\t\t{self.version}\nPrevious Header:\t\t{self.prevHash.hex()}\nExtra Txs:\t\t{self.externalTxs}\nSeed Hash:\t\t{self.seedHash.hex()}\nHeader:\t\t{self.header.hex()}\nCoinbase:\t\t{self.coinbase_tx.hex()}\nCoinbase txid:\t\t{self.coinbase_txid.hex()}\nNew sessions:\t\t{self.new_sessions}\nSessions:\t\t{self.all_sessions}'
+        return f'Height:\t\t{self.height}\nAddress h160:\t\t{self.pub_h160}\nBits:\t\t{self.bits}\nTarget:\t\t{self.target}\nHeader Hash:\t\t{self.headerHash}\nVersion:\t\t{self.version}\nPrevious Header:\t\t{self.prevHash.hex()}\nExtra Txs:\t\t{self.externalTxs}\nSeed Hash:\t\t{self.seedHash.hex()}\nHeader:\t\t{self.header.hex()}\nCoinbase:\t\t{self.coinbase_tx.hex()}\nCoinbase txid:\t\t{self.coinbase_txid.hex()}\nNew sessions:\t\t{self.new_sessions}\nSessions:\t\t{self.all_sessions}'
 
     def build_block(self, nonce: str, mixHash: str) -> str:
         return self.header.hex() + nonce + mixHash + var_int(len(self.externalTxs) + 1).hex() + self.coinbase_tx.hex() + ''.join(self.externalTxs)
@@ -146,7 +146,7 @@ class StratumSession(RPCSession):
     async def connection_lost(self):
         worker = str(self).strip('>').split()[3]
         print(f'Connection lost: {worker}')
-        del hashratedict[worker]
+        hashratedict.pop(worker, None)
         self._state.new_sessions.discard(self)
         self._state.all_sessions.discard(self)
         return await super().connection_lost()
@@ -161,10 +161,11 @@ class StratumSession(RPCSession):
     async def handle_authorize(self, username: str, password: str):
         # The first address that connects is the one that is used
         address = username.split('.')[0]
-        if base58.b58decode_check(address)[0] != (111 if self._testnet else 60):
+        addr_decoded = base58.b58decode_check(address)
+        if addr_decoded[0] != (111 if self._testnet else 60):
             raise RPCError(20, f'Invalid address {address}')
-        if not self._state.address:
-            self._state.address = address
+        if not self._state.pub_h160:
+            self._state.pub_h160 = addr_decoded[1:]
         return True
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
@@ -285,7 +286,7 @@ class StratumSession(RPCSession):
         return True
 
 async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: str, node_username: str, node_password: str, node_port: int):
-    if not state.address:
+    if not state.pub_h160:
         return
     data = {
         'jsonrpc':'2.0',
@@ -381,7 +382,7 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: s
                     arbitrary_data = b'with a little help from http://github.com/kralverde/ravencoin-stratum-proxy'
                     coinbase_script = op_push(len(bip34_height)) + bip34_height + b'\0' + op_push(len(arbitrary_data)) + arbitrary_data
                     coinbase_txin = bytes(32) + b'\xff'*4 + var_int(len(coinbase_script)) + coinbase_script + b'\xff'*4
-                    vout_to_miner = b'\x76\xa9\x14' + base58.b58decode_check(state.address)[1:] + b'\x88\xac'
+                    vout_to_miner = b'\x76\xa9\x14' + state.pub_h160 + b'\x88\xac'
 
                     # Concerning the default_witness_commitment:
                     # https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#commitment-structure
