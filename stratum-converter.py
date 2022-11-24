@@ -24,23 +24,23 @@ def var_int(i: int) -> bytes:
     # "CompactSize"
     assert i >= 0, i
     if i<0xfd:
-        return i.to_bytes(1, 'little')
+        return i.to_bytes(1, 'little', signed=False)
     elif i<=0xffff:
-        return b'\xfd'+i.to_bytes(2, 'little')
+        return b'\xfd'+i.to_bytes(2, 'little', signed=False)
     elif i<=0xffffffff:
-        return b'\xfe'+i.to_bytes(4, 'little')
+        return b'\xfe'+i.to_bytes(4, 'little', signed=False)
     else:
-        return b'\xff'+i.to_bytes(8, 'little')
+        return b'\xff'+i.to_bytes(8, 'little', signed=False)
 
 def op_push(i: int) -> bytes:
     if i < 0x4C:
-        return i.to_bytes(1, 'little')
+        return i.to_bytes(1, 'little', signed=False)
     elif i <= 0xff:
-        return b'\x4c'+i.to_bytes(1, 'little')
+        return b'\x4c'+i.to_bytes(1, 'little', signed=False)
     elif i <= 0xffff:
-        return b'\x4d'+i.to_bytes(2, 'little')
+        return b'\x4d'+i.to_bytes(2, 'little', signed=False)
     else:
-        return b'\x4e'+i.to_bytes(4, 'little')
+        return b'\x4e'+i.to_bytes(4, 'little', signed=False)
 
 
 def dsha256(b):
@@ -372,7 +372,7 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: s
                     if original_state is None:
                         original_state = deepcopy(state)
 
-                    bip34_height = state.height.to_bytes(4, 'little')
+                    bip34_height = state.height.to_bytes(4, 'little', signed=False)
                     while bip34_height[-1] == 0:
                         bip34_height = bip34_height[:-1]
 
@@ -397,14 +397,14 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: s
                                     b'\x00\x01' + \
                                     b'\x01' + coinbase_txin + \
                                     b'\x02' + \
-                                        coinbase_sats_int.to_bytes(8, 'little') + op_push(len(vout_to_miner)) + vout_to_miner + \
+                                        coinbase_sats_int.to_bytes(8, 'little', signed=False) + op_push(len(vout_to_miner)) + vout_to_miner + \
                                         bytes(8) + op_push(len(witness_vout)) + witness_vout + \
                                     b'\x01\x20' + bytes(32) + bytes(4))
 
                     coinbase_no_wit = int(1).to_bytes(4, 'little') + \
                                         b'\x01' + coinbase_txin + \
                                         b'\x02' + \
-                                            coinbase_sats_int.to_bytes(8, 'little') + op_push(len(vout_to_miner)) + vout_to_miner + \
+                                            coinbase_sats_int.to_bytes(8, 'little', signed=False) + op_push(len(vout_to_miner)) + vout_to_miner + \
                                             bytes(8) + op_push(len(witness_vout)) + witness_vout + \
                                         bytes(4)
                     state.coinbase_txid = dsha256(coinbase_no_wit)
@@ -424,9 +424,9 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: s
                     state.header = version_int.to_bytes(4, 'little') + \
                             state.prevHash + \
                             merkle + \
-                            ts.to_bytes(4, 'little') + \
+                            ts.to_bytes(4, 'little', signed=False) + \
                             bytes.fromhex(bits_hex)[::-1] + \
-                            state.height.to_bytes(4, 'little')
+                            state.height.to_bytes(4, 'little', signed=False)
 
                     state.headerHash = dsha256(state.header)[::-1].hex()
                     state.timestamp = ts
@@ -460,7 +460,7 @@ if __name__ == '__main__':
         return bool(x)
     
     if len(sys.argv) < 7:
-        print('arguments must be: proxy_port, node_ip, node_username, node_password, node_port, listen_externally, (testnet - optional)')
+        print('arguments must be: proxy_port, node_ip, node_username, node_password, node_port, listen_externally, (optional: testnet, verbose)')
         exit(0)
 
     proxy_port = int(sys.argv[1])
@@ -470,8 +470,12 @@ if __name__ == '__main__':
     node_port = int(sys.argv[5])
     should_listen_externaly = check_bool(sys.argv[6])
     testnet = False
+    verbose = False
     if len(sys.argv) > 7:
         testnet = check_bool(sys.argv[7])
+
+    if len(sys.argv) > 8:
+        verbose = check_bool(sys.argv[8])
     
     print('Starting stratum converter')
 
