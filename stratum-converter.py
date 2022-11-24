@@ -113,11 +113,12 @@ def lookup_old_state(queue, id: str) -> Optional[TemplateState]:
 
 class StratumSession(RPCSession):
 
-    def __init__(self, state: TemplateState, old_states, testnet: bool, node_url: str, node_username: str, node_password: str, node_port: int, transport):
+    def __init__(self, state: TemplateState, old_states, testnet: bool, verbose: bool, node_url: str, node_username: str, node_password: str, node_port: int, transport):
         connection = JSONRPCConnection(JSONRPCAutoDetect)
         super().__init__(transport, connection=connection)
         self._state = state
         self._testnet = testnet
+        self._verbose = verbose
 
         self._old_states = old_states
 
@@ -145,7 +146,8 @@ class StratumSession(RPCSession):
 
     async def connection_lost(self):
         worker = str(self).strip('>').split()[3]
-        print(f'Connection lost: {worker}')
+        if self._verbose:
+            print(f'Connection lost: {worker}')
         hashratedict.pop(worker, None)
         self._state.new_sessions.discard(self)
         self._state.all_sessions.discard(self)
@@ -170,16 +172,18 @@ class StratumSession(RPCSession):
 
     async def handle_submit(self, worker: str, job_id: str, nonce_hex: str, header_hex: str, mixhash_hex: str):
 
-        print('Possible solution')
-        print(worker)
-        print(job_id)
-        print(header_hex)
+        if self._verbose:
+            print('Possible solution')
+            print(worker)
+            print(job_id)
+            print(header_hex)
 
         # We can still propogate old jobs; there may be a chance that they get used
         state = self._state
 
         if job_id != hex(state.job_counter)[2:]:
-            print('An old job was submitted, trying old states')
+            if self._verbose:
+                print('An old job was submitted, trying old states')
             old_state = lookup_old_state(self._old_states, job_id)
             if old_state is not None:
                 state = old_state
@@ -204,20 +208,28 @@ class StratumSession(RPCSession):
         async with ClientSession() as session:
             async with session.post(f'http://{self._node_username}:{self._node_password}@{self._node_url}:{self._node_port}', data=json.dumps(data)) as resp:
                 json_resp = await resp.json()
-                print(json_resp)
+                
+                with open(f'./submit_history/{state.height}_{state.job_counter}.txt') as f:
+                    data = f'Response:\n{json.dumps(json_resp, indent=2)}\n\nState:\n{state.__repr__()}'
+                    f.write(data)
+
+                if self._verbose:
+                    print(json_resp)
+                
                 if json_resp.get('error', None):
                     raise RPCError(20, json_resp['error'])
                 
                 result = json_resp.get('result', None)
-                if result == 'inconclusive':
-                    # inconclusive - valid submission but other block may be better, etc.
-                    print('Valid block but inconclusive')
-                elif result == 'duplicate':
-                    print('Valid block but duplicate')
-                elif result == 'duplicate-inconclusive':
-                    print('Valid block but duplicate-inconclusive')
-                elif result == 'inconclusive-not-best-prevblk':
-                    print('Valid block but inconclusive-not-best-prevblk')
+                if self._verbose:
+                    if result == 'inconclusive':
+                        # inconclusive - valid submission but other block may be better, etc.
+                        print('Valid block but inconclusive')
+                    elif result == 'duplicate':
+                        print('Valid block but duplicate')
+                    elif result == 'duplicate-inconclusive':
+                        print('Valid block but duplicate-inconclusive')
+                    elif result == 'inconclusive-not-best-prevblk':
+                        print('Valid block but inconclusive-not-best-prevblk')
                 
                 if result not in (None, 'inconclusive', 'duplicate', 'duplicate-inconclusive', 'inconclusive-not-best-prevblk'):
                     raise RPCError(20, json_resp['result'])
@@ -253,7 +265,7 @@ class StratumSession(RPCSession):
                     print('Failed to query mininginfo from node')
                     import traceback
                     traceback.print_exc()
-                    exit(1)
+                    return
         
         hashrate = int(hashrate, 16)
         worker = str(self).strip('>').split()[3]
@@ -285,7 +297,7 @@ class StratumSession(RPCSession):
             print('Mining software has yet to send data')
         return True
 
-async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: str, node_username: str, node_password: str, node_port: int):
+async def stateUpdater(state: TemplateState, old_states, drop_after, verbose, node_url: str, node_username: str, node_password: str, node_port: int):
     if not state.pub_h160:
         return
     data = {
@@ -328,7 +340,8 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: s
                 if state.height == -1 or state.height != height_int:
                     original_state = deepcopy(state)
                     # New block, update everything
-                    print('New block, update state')
+                    if verbose:
+                        print('New block, update state')
                     new_block = True
 
                     # Generate seed hash #
@@ -339,14 +352,16 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: s
                                 k = sha3.keccak_256()
                                 k.update(seed_hash)
                                 seed_hash = k.digest()
-                            print(f'Initialized seedhash to {seed_hash.hex()}')
+                            if verbose:
+                                print(f'Initialized seedhash to {seed_hash.hex()}')
                             state.seedHash = seed_hash
                         elif state.height % KAWPOW_EPOCH_LENGTH == 0:
                             # Hashing is expensive, so want use the old val
                             k = sha3.keccak_256()
                             k.update(state.seedHash)
                             seed_hash = k.digest()
-                            print(f'updated seed hash to {seed_hash.hex()}')
+                            if verbose:
+                                print(f'updated seed hash to {seed_hash.hex()}')
                             state.seedHash = seed_hash
                     elif state.height > height_int:
                         # Maybe a chain reorg?
@@ -359,7 +374,8 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: s
                                 k = sha3.keccak_256()
                                 k.update(seed_hash)
                                 seed_hash = k.digest()
-                            print(f'Reverted seedhash to {seed_hash}')
+                            if verbose:
+                                print(f'Reverted seedhash to {seed_hash}')
                             state.seedHash = seed_hash
 
                     # Done with seed hash #
@@ -486,11 +502,11 @@ if __name__ == '__main__':
     # only save 20 historic states (magic number)
     store = 20
 
-    session_generator = partial(StratumSession, state, historical_states, testnet, node_url, node_username, node_password, node_port)
+    session_generator = partial(StratumSession, state, historical_states, testnet, verbose, node_url, node_username, node_password, node_port)
 
     async def updateState():
         while True:
-            await stateUpdater(state, historical_states, store, node_url, node_username, node_password, node_port)
+            await stateUpdater(state, historical_states, store, verbose, node_url, node_username, node_password, node_port)
             # Check for new blocks / new transactions every 0.1 seconds
             # stateUpdater should fast fail if no differences
             await asyncio.sleep(0.1)
