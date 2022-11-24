@@ -209,7 +209,7 @@ class StratumSession(RPCSession):
             async with session.post(f'http://{self._node_username}:{self._node_password}@{self._node_url}:{self._node_port}', data=json.dumps(data)) as resp:
                 json_resp = await resp.json()
                 
-                with open(f'./submit_history/{state.height}_{state.job_counter}.txt') as f:
+                with open(f'./submit_history/{state.height}_{state.job_counter}.txt', 'w') as f:
                     data = f'Response:\n{json.dumps(json_resp, indent=2)}\n\nState:\n{state.__repr__()}'
                     f.write(data)
 
