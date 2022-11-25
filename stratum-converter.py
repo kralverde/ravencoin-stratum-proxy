@@ -24,23 +24,23 @@ def var_int(i: int) -> bytes:
     # "CompactSize"
     assert i >= 0, i
     if i<0xfd:
-        return i.to_bytes(1, 'little', signed=False)
+        return i.to_bytes(1, 'little')
     elif i<=0xffff:
-        return b'\xfd'+i.to_bytes(2, 'little', signed=False)
+        return b'\xfd'+i.to_bytes(2, 'little')
     elif i<=0xffffffff:
-        return b'\xfe'+i.to_bytes(4, 'little', signed=False)
+        return b'\xfe'+i.to_bytes(4, 'little')
     else:
-        return b'\xff'+i.to_bytes(8, 'little', signed=False)
+        return b'\xff'+i.to_bytes(8, 'little')
 
 def op_push(i: int) -> bytes:
     if i < 0x4C:
-        return i.to_bytes(1, 'little', signed=False)
+        return i.to_bytes(1, 'little')
     elif i <= 0xff:
-        return b'\x4c'+i.to_bytes(1, 'little', signed=False)
+        return b'\x4c'+i.to_bytes(1, 'little')
     elif i <= 0xffff:
-        return b'\x4d'+i.to_bytes(2, 'little', signed=False)
+        return b'\x4d'+i.to_bytes(2, 'little')
     else:
-        return b'\x4e'+i.to_bytes(4, 'little', signed=False)
+        return b'\x4e'+i.to_bytes(4, 'little')
 
 
 def dsha256(b):
@@ -388,7 +388,7 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, verbose, no
                     if original_state is None:
                         original_state = deepcopy(state)
 
-                    bip34_height = state.height.to_bytes(4, 'little', signed=False)
+                    bip34_height = state.height.to_bytes(4, 'little', signed=True)
                     while bip34_height[-1] == 0:
                         bip34_height = bip34_height[:-1]
 
@@ -413,14 +413,14 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, verbose, no
                                     b'\x00\x01' + \
                                     b'\x01' + coinbase_txin + \
                                     b'\x02' + \
-                                        coinbase_sats_int.to_bytes(8, 'little', signed=False) + op_push(len(vout_to_miner)) + vout_to_miner + \
+                                        coinbase_sats_int.to_bytes(8, 'little') + op_push(len(vout_to_miner)) + vout_to_miner + \
                                         bytes(8) + op_push(len(witness_vout)) + witness_vout + \
                                     b'\x01\x20' + bytes(32) + bytes(4))
 
                     coinbase_no_wit = int(1).to_bytes(4, 'little') + \
                                         b'\x01' + coinbase_txin + \
                                         b'\x02' + \
-                                            coinbase_sats_int.to_bytes(8, 'little', signed=False) + op_push(len(vout_to_miner)) + vout_to_miner + \
+                                            coinbase_sats_int.to_bytes(8, 'little') + op_push(len(vout_to_miner)) + vout_to_miner + \
                                             bytes(8) + op_push(len(witness_vout)) + witness_vout + \
                                         bytes(4)
                     state.coinbase_txid = dsha256(coinbase_no_wit)
@@ -440,9 +440,9 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, verbose, no
                     state.header = version_int.to_bytes(4, 'little') + \
                             state.prevHash + \
                             merkle + \
-                            ts.to_bytes(4, 'little', signed=False) + \
+                            ts.to_bytes(4, 'little') + \
                             bytes.fromhex(bits_hex)[::-1] + \
-                            state.height.to_bytes(4, 'little', signed=False)
+                            state.height.to_bytes(4, 'little')
 
                     state.headerHash = dsha256(state.header)[::-1].hex()
                     state.timestamp = ts
