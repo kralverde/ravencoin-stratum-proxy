@@ -3,6 +3,7 @@ from copy import deepcopy
 import json
 import time
 import sys
+import os
 import urllib.parse
 
 import base58
@@ -497,6 +498,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 8:
         verbose = check_bool(sys.argv[8])
     
+    if not os.path.exists('./submit_history'):
+        os.mkdir('./submit_history')
+
     print('Starting stratum converter')
 
     # The shared state
