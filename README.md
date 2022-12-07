@@ -51,11 +51,11 @@ rpcuser=my_username
 rpcpassword=my_password
 rpcallowip=127.0.0.1
 ```
-On *nix OS's this file is located at `~/.raven` by default. On windows, this file is located at `%appdata%\roaming\Raven`.
+On *nix OS's this file is located at `~/.hive` by default. On windows, this file is located at `%appdata%\roaming\hive`.
 
 You may need to create the `raven.conf` file and add those lines if it does not exist.
 
-For testnet you can add `testnet=1` to your `raven.conf`
+
 
 note:
 - Default Mainnet rpcport = `9766`
