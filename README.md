@@ -1,4 +1,4 @@
-# ravencoin-stratum-proxy
+# HVQ_Stratum-Proxy forked from ravencoin-stratum-proxy
 Allows you to mine directly to your own local wallet/node with any mining software that uses the stratum protocol.
 
 If you are a windows user and are not familiar with python, a walk-through and auto installer is avaliable for a (hopefully) easy install. See [here](#windows).
@@ -58,20 +58,16 @@ You may need to create the `raven.conf` file and add those lines if it does not 
 For testnet you can add `testnet=1` to your `raven.conf`
 
 note:
-- Default Mainnet rpcport = `8766`
-- Default Testnet rpcport = `18766`
+- Default Mainnet rpcport = `9766`
 
 Make sure you configure the rpcport on `stratum-converter.py` accordingly.
 
 <a name="usage"/>
 
 ## Usage:
-The stratum converter uses the following flags `python stratum-converter.py Port_for_miner Ip_of_node Rpc_username Rpc_password Rpc_port Allow_external_connections Is_testnet(optional)` 
+The stratum converter uses the following flags `python stratum-converter.py Port_for_miner Ip_of_node Rpc_username Rpc_password Rpc_port 
 
-With this in mind we can run **testnet** from a local node with a local miner:
-```
-python3 stratum-converter.py 54325 localhost my_username my_password 18766 false true
-```
+
 And for a local node on **mainnet** with an external miner:
 ```
 python3 stratum-converter.py 54325 localhost my_username my_password 8766 true
