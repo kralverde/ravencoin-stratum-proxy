@@ -53,7 +53,7 @@ rpcallowip=127.0.0.1
 ```
 On *nix OS's this file is located at `~/.hive` by default. On windows, this file is located at `%appdata%\roaming\hive`.
 
-You may need to create the `raven.conf` file and add those lines if it does not exist.
+You may need to create the `hive.conf` file and add those lines if it does not exist.
 
 
 
