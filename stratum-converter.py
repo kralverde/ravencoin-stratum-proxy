@@ -332,11 +332,7 @@ async def stateUpdater(state: TemplateState, old_states, drop_after, node_url: s
                     # New block, update everything
                     print('New block, update state')
                     new_block = True
-                 # 1971
-                    print('coin caca',coinbase_sats_int)
-
-
-                    # Generate seed hash #
+                # Generate seed hash #
                     if state.height == - 1 or height_int > state.height:
                         if not state.seedHash:
                             seed_hash = bytes(32)
