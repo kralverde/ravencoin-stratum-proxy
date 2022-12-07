@@ -44,7 +44,7 @@ A bat file is avaliable to auto install python and dependencies and generate ano
 
 ## Node Requirements:
 
-Requires the following `raven.conf` options:
+Requires the following `hive.conf` options:
 ```
 server=1
 rpcuser=my_username
