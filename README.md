@@ -91,4 +91,6 @@ Connect to it with your miner of choise:
 
 ## Help:
 @kralverde#0550 is avaliable on the community ravencoin server (https://discord.gg/jn6uhur)
-
+Donate: 
+  - RVN: RMriWfETGV97hskqH8TvSWVZb9idK6fkU6
+  - BTC: bc1q9vs8ttd6sg8dvhwwqh5g6c5wjm0fwkfmq2lgff
