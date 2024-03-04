@@ -199,7 +199,7 @@ class StratumSession(RPCSession):
 
     async def handle_authorize(self, username: str, password: str):
         # The first address that connects is the one that is used
-        split = username.split(".")[0]
+        split = username.split(".")
         address = split[0]
         if len(split) > 1:
             self.name = split[1]
